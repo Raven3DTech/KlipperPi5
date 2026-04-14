@@ -1,20 +1,20 @@
 # Klipper Module Config
 # Pinned to a known-good commit for stability.
 # Set to "master" to always pull latest.
-KLIPPER_REPO=https://github.com/Klipper3d/klipper.git
-KLIPPER_BRANCH=master
+export KLIPPER_REPO=https://github.com/Klipper3d/klipper.git
+export KLIPPER_BRANCH=master
 
 # Python virtualenv path
-KLIPPER_VENV=/home/pi/klippy-env
+export KLIPPER_VENV=/home/pi/klippy-env
 
 # Klipper install directory
-KLIPPER_DIR=/home/pi/klipper
+export KLIPPER_DIR=/home/pi/klipper
 
 # Unix socket path (must match moonraker.conf)
-KLIPPER_SOCKET=/tmp/klippy_uds
+export KLIPPER_SOCKET=/tmp/klippy_uds
 
 # Log file
-KLIPPER_LOG=/home/pi/printer_data/logs/klippy.log
+export KLIPPER_LOG=/home/pi/printer_data/logs/klippy.log
 
 # Printer config file
-KLIPPER_CONFIG=/home/pi/printer_data/config/printer.cfg
+export KLIPPER_CONFIG=/home/pi/printer_data/config/printer.cfg
