@@ -1,6 +1,6 @@
 # Configurator Module Config
 export RATOS_CONFIGURATOR_REPO=https://github.com/Rat-OS/RatOS-configurator.git
-export RATOS_CONFIGURATOR_BRANCH=v2.x
+export RATOS_CONFIGURATOR_BRANCH=v2.1.x
 export RATOS_CONFIGURATOR_DIR=/home/pi/ratos-configurator
 export RATOS_CONFIGURATOR_PORT=3000
 
