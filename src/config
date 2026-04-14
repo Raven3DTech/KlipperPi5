@@ -16,7 +16,7 @@ export BASE_IMAGE_RASPBIAN="yes"
 export BASE_ROOT_PARTITION="2"
 export BASE_BOOT_PARTITION="1"
 export BASE_BOOT_MOUNT_PATH="boot"
-export BASE_IMAGE_ENLARGEROOT="3G"
+export BASE_IMAGE_ENLARGEROOT="3000"
 
 # Base system settings
 export BASE_USER=pi
