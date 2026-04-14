@@ -4,7 +4,7 @@
 # klipper must come before moonraker, moonraker before mainsail,
 # mainsail before ratos-configurator.
 
-MODULES="klipper moonraker mainsail ratos-configurator"
+MODULES="klipper,moonraker,mainsail,ratos-configurator"
 
 # Base system settings
 BASE_USER=pi
