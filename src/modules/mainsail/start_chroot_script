@@ -7,7 +7,7 @@ set -ex
 source /common.sh
 install_cleanup_trap
 
-source /tmp/klipperpi_config/mainsail/config
+# Variables are automatically exported by CustomPiOS
 
 # ── System dependencies ──────────────────────────────────────
 apt-get update --allow-releaseinfo-change
