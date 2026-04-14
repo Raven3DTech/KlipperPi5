@@ -1,13 +1,13 @@
 # Configurator Module Config
-RATOS_CONFIGURATOR_REPO=https://github.com/Rat-OS/RatOS-configurator.git
-RATOS_CONFIGURATOR_BRANCH=v2.x
-RATOS_CONFIGURATOR_DIR=/home/pi/ratos-configurator
-RATOS_CONFIGURATOR_PORT=3000
+export RATOS_CONFIGURATOR_REPO=https://github.com/Rat-OS/RatOS-configurator.git
+export RATOS_CONFIGURATOR_BRANCH=v2.x
+export RATOS_CONFIGURATOR_DIR=/home/pi/ratos-configurator
+export RATOS_CONFIGURATOR_PORT=3000
 
 # Paths that the configurator needs to read/write
-RATOS_CONFIG_PATH=/home/pi/printer_data/config/RatOS
-KLIPPER_CONFIG_PATH=/home/pi/printer_data/config
-KLIPPER_DIR=/home/pi/klipper
-KLIPPER_VENV=/home/pi/klippy-env
-MOONRAKER_DIR=/home/pi/moonraker
-PRINTER_DATA_DIR=/home/pi/printer_data
+export RATOS_CONFIG_PATH=/home/pi/printer_data/config/RatOS
+export KLIPPER_CONFIG_PATH=/home/pi/printer_data/config
+export KLIPPER_DIR=/home/pi/klipper
+export KLIPPER_VENV=/home/pi/klippy-env
+export MOONRAKER_DIR=/home/pi/moonraker
+export PRINTER_DATA_DIR=/home/pi/printer_data
