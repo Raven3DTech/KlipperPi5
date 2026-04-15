@@ -28,11 +28,16 @@ rm -rf "${KS_DIR}"
 git clone -b "${KLIPPERSCREEN_BRANCH}" --depth 1 "${KLIPPERSCREEN_SHIP}" "${KS_DIR}"
 chown -R "${BASE_USER}:${BASE_USER}" "${KS_DIR}"
 
-python3 - "${INSTALL_SH}" <<'PY'
+# NOTE: `python3 - "$path" <<PY` puts `-` in sys.argv[1]; the real path is argv[2].
+# Pass the file via env so the patch always edits KlipperScreen-install.sh.
+export KLIPPERSCREEN_INSTALL_SCRIPT="${INSTALL_SH}"
+python3 <<'PY'
+import os
 import pathlib
+import re
 import sys
 
-path = pathlib.Path(sys.argv[1])
+path = pathlib.Path(os.environ["KLIPPERSCREEN_INSTALL_SCRIPT"])
 text = path.read_text(encoding="utf-8")
 old = (
     'if [ "$EUID" == 0 ]\n'
@@ -40,12 +45,25 @@ old = (
     ' exit 1\n'
     'fi\n'
 )
-if old not in text:
-    sys.exit(
-        "KlipperScreen-install.sh: root guard block not found; "
-        "update klipperscreen/start_chroot_script patch for upstream changes."
+if old in text:
+    text = text.replace(old, "", 1)
+else:
+    text2, n = re.subn(
+        r'^if \[ "\$EUID" == 0 \]\s*\n'
+        r' then echo_error "Please do not run this script as root"\s*\n'
+        r' exit 1\s*\n'
+        r'fi\s*\n',
+        "",
+        text,
+        count=1,
+        flags=re.MULTILINE,
     )
-text = text.replace(old, "", 1)
+    if n != 1:
+        sys.exit(
+            "KlipperScreen-install.sh: root guard block not found; "
+            "update klipperscreen/start_chroot_script patch for upstream changes."
+        )
+    text = text2
 
 replacements = [
     ("sudo apt install", "apt-get install -y"),
