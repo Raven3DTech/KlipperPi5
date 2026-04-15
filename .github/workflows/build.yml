@@ -25,6 +25,13 @@ jobs:
           repository: guysoft/CustomPiOS
           path: CustomPiOS
 
+      # GitHub-hosted runners often have a hostname not listed in /etc/hosts; sudo then prints
+      # "unable to resolve host …" on every invocation (harmless but noisy in build logs).
+      - name: Map VM hostname in /etc/hosts (quiet sudo warnings)
+        run: |
+          H=$(hostname)
+          grep -qF "$H" /etc/hosts || echo "127.0.0.1 $H" | sudo tee -a /etc/hosts
+
       - name: Install build dependencies
         run: |
           sudo apt-get update -qq
