@@ -14,7 +14,9 @@ curl -fsSL https://deb.nodesource.com/setup_20.x | bash -
 apt-get install -y --no-install-recommends \
     nodejs \
     git \
-    avahi-daemon
+    avahi-daemon \
+    fonts-inter \
+    fonts-dejavu-core
 
 node --version
 npm --version
@@ -42,6 +44,27 @@ sudo -u pi mkdir -p ${RATOS_CONFIG_PATH}
 cp /filesystem/home/pi/ratos-configurator/.env.local \
    ${RATOS_CONFIGURATOR_DIR}/src/.env.local
 chown pi:pi ${RATOS_CONFIGURATOR_DIR}/src/.env.local
+
+# ── Offline-safe fonts (Next.js build in chroot/CI) ───────────
+# next/font/google fetches from fonts.gstatic.com at build time — often ETIMEDOUT under qemu chroot.
+# Use next/font/local + a system TTF copied into the repo.
+sudo -u pi mkdir -p "${RATOS_CONFIGURATOR_DIR}/src/fonts"
+FONTPATH=$(dpkg -L fonts-inter 2>/dev/null | grep -E '/Inter-Regular\.ttf$' | head -n1)
+[ -z "${FONTPATH}" ] && FONTPATH=$(dpkg -L fonts-inter 2>/dev/null | grep -E '\.ttf$' | head -n1)
+if [ ! -f "${FONTPATH}" ]; then
+  FONTPATH=/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf
+fi
+sudo -u pi cp -f "${FONTPATH}" "${RATOS_CONFIGURATOR_DIR}/src/fonts/inter.ttf"
+sudo -u pi tee "${RATOS_CONFIGURATOR_DIR}/src/app/fonts.tsx" >/dev/null <<'FONTSEOF'
+import localFont from 'next/font/local';
+
+// KlipperPi: avoid next/font/google (network at build time). Inter TTF from fonts-inter (or DejaVu fallback).
+export const inter = localFont({
+  src: '../fonts/inter.ttf',
+  variable: '--inter-font',
+  display: 'swap',
+});
+FONTSEOF
 
 # ── Install pnpm and dependencies ────────────────────────────
 npm install -g pnpm

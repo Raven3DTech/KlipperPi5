@@ -17,6 +17,7 @@
 - Raspberry Pi 4 ✅
 
 ### Features
+- **ratos-configurator** module: patch `src/app/fonts.tsx` to **`next/font/local`** with `fonts-inter` (or DejaVu fallback) so `pnpm run build` does not call **fonts.gstatic.com** (CI/chroot often hits **ETIMEDOUT** on `next/font/google`)
 - **network-support** module: wpasupplicant, WiFi firmware, rfkill, iw (NM stays from base image; ModemManager masked on first boot); first-boot `rfkill unblock` + Pi 5 serial + Mainsail hostname; Next `pnpm build` uses `NODE_OPTIONS=--max-old-space-size=4096` for CI
 - **sonar** module: install `iputils-ping` explicitly (upstream dropped `PKGLIST=`); set default **`SONAR_SYSTEMD_PATH`** to `~/printer_data/systemd` and create it before `make install` (unattended install otherwise `cp`s `sonar.env` to an empty path)
 - **klipperscreen** module: **do not run** upstream `KlipperScreen-install.sh` in the image build — CI/chroot **nosuid** breaks `/usr/bin/sudo` for non-root users; install X stack, venv + pip, systemd unit, polkit rules, and desktop file **directly as root** then `chown` to `pi` (same outcome as the installer without any `sudo`). **Deps:** `libgtk-3-dev`, `libffi-dev`, `gobject-introspection`, `libdbus-1-dev` so PyGObject pip builds succeed; optional fonts on a separate `apt` line; **piwheels** extra index on `arm*` / `aarch*` for faster pip on Pi images.
