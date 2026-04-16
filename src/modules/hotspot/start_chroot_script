@@ -1,0 +1,60 @@
+#!/usr/bin/env bash
+# Auto-hotspot — adapted from [RatOS v2.1.x hotspot](https://github.com/Rat-OS/RatOS/tree/v2.1.x/src/modules/hotspot)
+set -ex
+
+source /common.sh
+install_cleanup_trap
+
+apt-get update --allow-releaseinfo-change
+apt-get -y purge dns-root-data || true
+apt-get install -y iw hostapd dnsmasq iptables
+
+systemctl disable hostapd || true
+systemctl disable dnsmasq || true
+
+unpack /filesystem/root /
+
+sed -i "s/HOTSPOT_NAME/${HOTSPOT_NAME}/g" /etc/hostapd/hostapd.conf
+sed -i "s/HOTSPOT_PASSWORD/${HOTSPOT_PASSWORD}/g" /etc/hostapd/hostapd.conf
+sed -i "s/HOTSPOT_CHANNEL/${HOTSPOT_CHANNEL}/g" /etc/hostapd/hostapd.conf
+
+if grep -Fxq "DAEMON_CONF" /etc/default/hostapd 2>/dev/null; then
+  sed -i "s@#DAEMON_CONF=\"\"@DAEMON_CONF=\"/etc/hostapd/hostapd.conf\"@g" /etc/default/hostapd
+else
+  echo 'DAEMON_CONF="/etc/hostapd/hostapd.conf"' >> /etc/default/hostapd
+fi
+
+sed -i 's@^DAEMON_OPTS=""@#DAEMON_OPTS=""@g' /etc/default/hostapd 2>/dev/null || true
+
+if [ -f /etc/dhcpcd.conf ]; then
+  sed -i 's/clientid/# clientid/g' /etc/dhcpcd.conf || true
+fi
+
+if ! grep -q 'Auto-hotspot Config' /etc/dnsmasq.conf 2>/dev/null; then
+  printf '\n# Auto-hotspot Config\ninterface=wlan0\nbind-interfaces\ndhcp-range=192.168.50.150,192.168.50.200,255.255.255.0,12h\n' >> /etc/dnsmasq.conf
+fi
+
+if grep -q '^net.ipv4.ip_forward=1' /etc/sysctl.conf 2>/dev/null; then
+  sed -i 's/^net.ipv4.ip_forward=1/#net.ipv4.ip_forward=1/g' /etc/sysctl.conf || true
+fi
+
+# Pi OS Bookworm+ often uses NetworkManager — do not wipe /etc/network/interfaces (RatOS does).
+if ! dpkg -l network-manager 2>/dev/null | grep -q '^ii'; then
+  if [ -f /etc/network/interfaces ]; then
+    cp -a /etc/network/interfaces /etc/network/interfaces-backup 2>/dev/null || true
+    echo "" > /etc/network/interfaces
+  fi
+fi
+
+# Ethernet on Pi OS Bookworm+ is often end0, not eth0.
+if [[ -f /usr/bin/autohotspotN ]]; then
+  if ! ip link show eth0 &>/dev/null && ip link show end0 &>/dev/null; then
+    sed -i 's/^ethdev="eth0"/ethdev="end0"/' /usr/bin/autohotspotN
+  fi
+fi
+
+chmod +x /usr/bin/autohotspotN /usr/bin/add_masquerade /usr/bin/make_sure_master 2>/dev/null || true
+
+systemctl enable autohotspot.service
+
+echo_green "hotspot: autohotspot.service enabled (see BUILD.md for NM / dhcpcd notes)"

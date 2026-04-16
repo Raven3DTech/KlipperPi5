@@ -127,6 +127,7 @@ Each component can be updated independently via Moonraker's update manager
 | Module | Source |
 |---|---|
 | network-support | WiFi firmware + WPA tools (NM from base Pi OS; ModemManager masked on first boot) |
+| hotspot | [RatOS v2.1.x hotspot](https://github.com/Rat-OS/RatOS/tree/v2.1.x/src/modules/hotspot) — autohotspot / hostapd / dnsmasq (see **BUILD.md**) |
 | Klipper | https://github.com/Klipper3d/klipper |
 | Moonraker | https://github.com/Arksine/moonraker |
 | Mainsail | https://github.com/mainsail-crew/mainsail |

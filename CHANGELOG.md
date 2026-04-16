@@ -17,6 +17,7 @@
 - Raspberry Pi 4 ✅
 
 ### Features
+- **hotspot** module: [RatOS v2.1.x](https://github.com/Rat-OS/RatOS/tree/v2.1.x/src/modules/hotspot) auto-hotspot (hostapd, dnsmasq, `autohotspotN`); **KlipperPi tweaks:** default SSID **KlipperPi**, skip blanking `/etc/network/interfaces` when **NetworkManager** is installed, patch **`eth0` → `end0`** when present
 - **GitHub Actions**: free runner disk (remove dotnet/android/ghc/agent tools) before build; PiShrink uses **`-s -n`**, **`df -h`** logging, and **retry with `-r`** if shrink fails (large enlarged images need headroom for zero-fill + truncate); **`sudo xz`** + **`chown`** on `*.img.xz` after PiShrink (workspace stayed root-owned → `xz: … Permission denied`)
 - **ratos-configurator** module: patch `src/app/fonts.tsx` to **`next/font/local`** with `fonts-inter` (or DejaVu fallback) so `pnpm run build` does not call **fonts.gstatic.com** (CI/chroot often hits **ETIMEDOUT** on `next/font/google`)
 - **network-support** module: wpasupplicant, WiFi firmware, rfkill, iw (NM stays from base image; ModemManager masked on first boot); first-boot `rfkill unblock` + Pi 5 serial + Mainsail hostname; Next `pnpm build` uses `NODE_OPTIONS=--max-old-space-size=4096` for CI

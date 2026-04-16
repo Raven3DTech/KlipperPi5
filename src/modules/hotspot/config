@@ -1,0 +1,6 @@
+#!/usr/bin/env bash
+# RatOS-derived auto-hotspot (raspberryconnect.com). See BUILD.md for NM / dhcpcd notes.
+[ -n "$HOTSPOT_NAME" ] || HOTSPOT_NAME="KlipperPi"
+[ -n "$HOTSPOT_PASSWORD" ] || HOTSPOT_PASSWORD="raspberry"
+[ -n "$HOTSPOT_CHANNEL" ] || HOTSPOT_CHANNEL="6"
+:

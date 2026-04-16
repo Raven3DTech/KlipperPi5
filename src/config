@@ -6,8 +6,9 @@
 # timelapse must follow moonraker (links into moonraker/components).
 # ratos-configuration must follow klipper (printer_data/config exists) and precede rpi_mcu (boards/rpi/firmware.config).
 # network-support: WiFi firmware + NetworkManager (Bookworm); run early after base apt state is ready.
+# hotspot: RatOS-derived autohotspot (hostapd + dnsmasq); after network-support. See BUILD.md vs NetworkManager.
 # Modules (comma-separated; CustomPiOS v2 strips spaces, so use commas)
-export MODULES="klipper,network-support,ratos-configuration,dfu-util,moonraker,timelapse,mainsail,crowsnest,sonar,klipperscreen,rpi_mcu,ratos-configurator"
+export MODULES="klipper,network-support,hotspot,ratos-configuration,dfu-util,moonraker,timelapse,mainsail,crowsnest,sonar,klipperscreen,rpi_mcu,ratos-configurator"
 
 # Board: raspberrypiarm64 = RPi OS Lite arm64 (Pi 4 / Pi 5)
 export BASE_BOARD="raspberrypiarm64"

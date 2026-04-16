@@ -26,6 +26,20 @@ sudo apt-get install -y \
 Allow at least **25 GB free** on the build machine — the base image grows a lot once the root
 partition is enlarged for the full module stack, and the workspace holds intermediate files.
 
+### Why KlipperPi “feels huge” while RatOS / other images look smaller
+
+- **Build-time enlarge** (`BASE_IMAGE_ENLARGEROOT` in `src/config`) adds **empty MiB** on the root partition so the chroot can install a **full** stack (RatOS Configurator `pnpm`, KlipperScreen, camera-streamer, etc.) without **`ENOSPC`**. That makes the **raw `.img` during the build** large; **PiShrink + `xz`** in CI then shrink and compress, so the **downloaded `.img.xz`** is usually **much smaller** than the workspace peak.
+- **Upstream RatOS** images often combine a **different base**, **fewer in-image dev steps**, and a **smaller enlarge** in their recipe—so their **pre-shrink** file can start smaller. You can **try lowering** `BASE_IMAGE_ENLARGEROOT` in **2–4 GiB steps** only after CI proves the install still fits.
+- **Further wins** (optional, later): `pnpm store prune` after `pnpm run build` in the configurator module, drop optional modules you do not ship, or split “dev” vs “release” module sets.
+
+### Auto-hotspot (RatOS-derived)
+
+The **`hotspot`** module follows [Rat-OS/RatOS `v2.1.x` `hotspot`](https://github.com/Rat-OS/RatOS/tree/v2.1.x/src/modules/hotspot) (Guy Sheffer / RaspberryConnect.com pattern): **hostapd**, **dnsmasq**, **`autohotspot.service`**, and **`/usr/bin/autohotspotN`**.
+
+- **NetworkManager:** Pi OS Lite **Bookworm+** often uses **NetworkManager** for Wi‑Fi. `autohotspotN` was written around **wpa_supplicant + dhcpcd**. If the AP does not come up or Wi‑Fi flaps, use **Ethernet** for first setup, or plan a **NM-native** hotspot later—this port **does not blank `/etc/network/interfaces` when `network-manager` is installed** (unlike stock RatOS) to avoid breaking NM-managed installs.
+- **Ethernet interface:** many Pis use **`end0`** instead of **`eth0`**; the module **patches `autohotspotN`** when `end0` exists.
+- Defaults: SSID **`KlipperPi`**, WPA passphrase **`raspberry`**, channel **`6`** — override via `HOTSPOT_NAME` / `HOTSPOT_PASSWORD` / `HOTSPOT_CHANNEL` in `src/modules/hotspot/config` or `config.local`.
+
 ---
 
 ## Step-by-Step Build
@@ -347,6 +361,7 @@ Pi 5 (Bookworm 64-bit arm64)
 │   ├── klipper.service          :  klippy.py → /tmp/klippy_uds
 │   ├── moonraker.service        :  moonraker.py → :7125
 │   ├── NetworkManager.service   :  Ethernet + WiFi (from base Pi OS image)
+│   ├── autohotspot.service      :  RatOS-style fallback AP if no known WiFi (hostapd + dnsmasq)
 │   ├── nginx.service            :  → :80 (Mainsail) + proxy :7125
 │   ├── ratos-configurator.service: next start → :3000
 │   ├── crowsnest.service         :  webcam streaming
