@@ -23,8 +23,8 @@ sudo apt-get install -y \
 ```
 
 ### Disk space
-Allow at least **8 GB free** — the base image is ~2 GB expanded and the
-build workspace needs room to work.
+Allow at least **25 GB free** on the build machine — the base image grows a lot once the root
+partition is enlarged for the full module stack, and the workspace holds intermediate files.
 
 ---
 
@@ -252,6 +252,10 @@ All components update through Mainsail's built-in Update Manager:
 ### Image build logs: long "Unmounting …/mount/…" then `BUILD FAILED`
 
 CustomPiOS runs **`unmount_image`** whenever a module script errors (`set -e`). The lines that unmount `…/mount/sys`, `proc`, `dev`, `boot`, etc. are **cleanup after the real failure**, not the root cause. Scroll **up** in `build.log` (or the Actions step log) for the first **`cp:` / `pip` / `apt` / `make`** error *before* that block.
+
+### Image build: `ERR_PNPM_ENOSPC` / `no space left on device` during RatOS Configurator
+
+The root filesystem inside the loop-mounted image is full. The build already enlarges the root partition (`BASE_IMAGE_ENLARGEROOT` in `src/config`); if you add modules or upstream grows (e.g. `pnpm` dependencies), increase that value (MiB) and rebuild. On GitHub Actions, the artifact is still compressed afterward (PiShrink + `xz`), so a larger **build** image does not mean you ship that much raw space to users in the same proportion.
 
 ### Image build: `umount: … target is busy` (local / WSL)
 

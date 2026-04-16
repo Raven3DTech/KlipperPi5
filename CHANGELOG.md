@@ -9,7 +9,8 @@
 - Configurator (Rat-OS/RatOS-configurator @ v2.1.x)
 
 ### Base OS
-- Raspberry Pi OS Lite Bookworm 64-bit (arm64)
+- Raspberry Pi OS Lite 64-bit (arm64; tracks current `raspios_lite_arm64_latest`, e.g. Bookworm or newer)
+- Root partition enlarged by **14000 MiB** during build (`BASE_IMAGE_ENLARGEROOT`) so heavy modules (KlipperScreen, crowsnest, RatOS Configurator `pnpm install`) do not hit **ENOSPC** in CI
 
 ### Targets
 - Raspberry Pi 5 ✅

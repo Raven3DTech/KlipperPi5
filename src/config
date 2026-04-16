@@ -18,7 +18,10 @@ export BASE_IMAGE_RASPBIAN="yes"
 export BASE_ROOT_PARTITION="2"
 export BASE_BOOT_PARTITION="1"
 export BASE_BOOT_MOUNT_PATH="boot"
-export BASE_IMAGE_ENLARGEROOT="6000"
+# Extra MiB for root partition (CustomPiOS enlarge_ext). Stack is heavy: Klipper + Moonraker +
+# KlipperScreen (PyGObject/venv) + crowsnest (camera-streamer build) + ratos-configurator (pnpm ~1k packages).
+# 6000 MiB was enough for Bookworm-only; current Pi OS lite arm64 (trixie) + full module set can hit ENOSPC during pnpm install.
+export BASE_IMAGE_ENLARGEROOT="14000"
 
 # Base system settings
 export BASE_USER=pi
