@@ -32,6 +32,15 @@ jobs:
           H=$(hostname)
           grep -qF "$H" /etc/hosts || echo "127.0.0.1 $H" | sudo tee -a /etc/hosts
 
+      # Enlarged Pi images are multi‑GB raw files; PiShrink mounts the image and zero‑fills free
+      # space before truncate — needs several GB free on / or the shrink step hits ENOSPC / resize2fs errors.
+      - name: Free disk space on runner (PiShrink / large .img)
+        run: |
+          sudo rm -rf /usr/share/dotnet /usr/local/lib/android /opt/ghc 2>/dev/null || true
+          sudo rm -rf "$AGENT_TOOLSDIRECTORY" 2>/dev/null || true
+          sudo docker system prune -af 2>/dev/null || true
+          df -h
+
       - name: Install build dependencies
         run: |
           sudo apt-get update -qq
@@ -110,13 +119,19 @@ jobs:
           
           # If the resulting file is a raw .img, strip empty blocks and compress it!
           if [[ "${DEST}" == *.img ]]; then
+            echo "Disk before PiShrink:"
+            df -h
             echo "Downloading PiShrink..."
             sudo wget -q https://raw.githubusercontent.com/Drewsif/PiShrink/master/pishrink.sh -O /usr/local/bin/pishrink.sh
             sudo chmod +x /usr/local/bin/pishrink.sh
-            
-            echo "Shrinking filesystem (removing empty 6GB padded space)..."
-            sudo pishrink.sh -s "${DEST}"
-            
+            # -s skip first-boot auto-expand hook; -n skip GitHub version check (curl in CI)
+            echo "Shrinking filesystem (PiShrink)..."
+            if ! sudo pishrink.sh -s -n "${DEST}"; then
+              echo "PiShrink failed; retrying with filesystem repair (-r)..."
+              sudo pishrink.sh -s -n -r "${DEST}"
+            fi
+            echo "Disk after PiShrink:"
+            df -h
             echo "Compressing heavily with xz..."
             # -T0 uses all available CPU threads for max speed
             xz -T0 -z -9 "${DEST}"

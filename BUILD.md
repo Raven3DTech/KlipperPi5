@@ -253,6 +253,10 @@ All components update through Mainsail's built-in Update Manager:
 
 CustomPiOS runs **`unmount_image`** whenever a module script errors (`set -e`). The lines that unmount `…/mount/sys`, `proc`, `dev`, `boot`, etc. are **cleanup after the real failure**, not the root cause. Scroll **up** in `build.log` (or the Actions step log) for the first **`cp:` / `pip` / `apt` / `make`** error *before* that block.
 
+### Image build: PiShrink / `resize2fs` / `parted failed` / `No space left on device` on GitHub Actions
+
+The workflow runs **PiShrink** on the raw `.img` after CustomPiOS finishes. PiShrink **mounts** the image and **writes zeros** into free blocks before truncating the file, so the runner needs **several GB of free disk on `/`** in addition to the image size. The workflow removes preinstalled **dotnet / Android / GHC / hosted tool cache** to make room, then retries PiShrink once with **`-r`** (filesystem repair) if the first pass fails.
+
 ### Image build: `next/font` / `Failed to fetch Inter from Google Fonts` / `ETIMEDOUT`
 
 The RatOS Configurator build uses Next.js; **`next/font/google`** downloads fonts at **build** time. Inside the CustomPiOS chroot (especially on GitHub Actions), HTTPS to **fonts.gstatic.com** can time out. The KlipperPi module replaces that with **`next/font/local`** and a system **Inter** (or DejaVu) TTF so the image build stays offline-safe.
