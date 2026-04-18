@@ -112,7 +112,10 @@ systemctl restart ssh 2>/dev/null || systemctl start ssh 2>/dev/null || true
 
 # ── Set correct ownership on printer_data ────────────────────
 echo "[5/7] Setting file ownership..."
+mkdir -p /home/pi/printer_data/ratos /home/pi/printer_data/logs /home/pi/timelapse
+touch /home/pi/printer_data/logs/sonar.log
 chown -R pi:pi /home/pi/printer_data
+chown -R pi:pi /home/pi/timelapse
 chown -R pi:pi /home/pi/ratos-configurator
 chown -R pi:pi /home/pi/klipper
 chown -R pi:pi /home/pi/moonraker
@@ -150,7 +153,8 @@ systemctl is-active --quiet ssh || systemctl start ssh 2>/dev/null || true
 
 echo "============================================"
 echo "R3DTOS PI5 First Boot Complete: $(date)"
-echo "Access Mainsail at: http://${NEW_HOSTNAME}.local"
-echo "Access Configurator at: http://${NEW_HOSTNAME}.local/configure (same as stock RatOS; direct Next: :3000/configure)"
-echo "On fallback hotspot Wi-Fi: http://192.168.50.1 and http://192.168.50.1/configure"
+echo "First-run: open http://${NEW_HOSTNAME}.local/ → RatOS wizard /configure/wizard/ (printer profile + hardware)."
+echo "After setup: sudo r3dtos-wizard-complete  (then / opens Mainsail). Mainsail early: http://${NEW_HOSTNAME}.local/index.html"
+echo "Configurator: http://${NEW_HOSTNAME}.local/configure/  |  Wizard: .../configure/wizard/"
+echo "On fallback hotspot Wi-Fi: http://192.168.50.1 (same / → configurator until wizard complete)"
 echo "============================================"

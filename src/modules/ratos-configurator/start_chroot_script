@@ -45,6 +45,12 @@ cp /filesystem/home/pi/ratos-configurator/.env.local \
    ${RATOS_CONFIGURATOR_DIR}/src/.env.local
 chown pi:pi ${RATOS_CONFIGURATOR_DIR}/src/.env.local
 
+# ── Wi-Fi setup (Bookworm): NM needs nmcli; upstream only wrote wpa_supplicant.conf ─
+cp /filesystem/home/pi/ratos-configurator-patches/add-wifi-network.sh \
+   ${RATOS_CONFIGURATOR_DIR}/src/scripts/add-wifi-network.sh
+chmod 755 ${RATOS_CONFIGURATOR_DIR}/src/scripts/add-wifi-network.sh
+chown pi:pi ${RATOS_CONFIGURATOR_DIR}/src/scripts/add-wifi-network.sh
+
 # ── Offline-safe fonts (Next.js build in chroot/CI) ───────────
 # next/font/google fetches from fonts.gstatic.com at build time — often ETIMEDOUT under qemu chroot.
 # Use next/font/local + a system TTF copied into the repo.
@@ -66,10 +72,110 @@ export const inter = localFont({
 });
 FONTSEOF
 
+# ── Next.js behind nginx: stop slash / Location redirect loops ─
+# - trailingSlash + skipTrailingSlashRedirect (top-level; not under experimental in Next 14+).
+# - Remove stock headers() COOP/COEP (require-corp) — causes client-side exceptions behind nginx/LAN.
+sudo -u pi python3 <<PY
+from pathlib import Path
+import re
+
+def strip_headers_async_block(text: str) -> str:
+    m = re.search(r"^\s*headers:\s*async\s*\(\)\s*=>\s*\{", text, re.MULTILINE)
+    if not m:
+        return text
+    start = m.start()
+    i = m.end() - 1
+    if i >= len(text) or text[i] != "{":
+        return text
+    depth = 0
+    for k in range(i, len(text)):
+        if text[k] == "{":
+            depth += 1
+        elif text[k] == "}":
+            depth -= 1
+            if depth == 0:
+                end = k + 1
+                while end < len(text) and text[end] in " \t\r":
+                    end += 1
+                if end < len(text) and text[end] == ",":
+                    end += 1
+                return text[:start] + text[end:]
+    return text
+
+p = Path("${RATOS_CONFIGURATOR_DIR}/src/next.config.mjs")
+t = p.read_text(encoding="utf-8")
+needle = "basePath: '/configure',"
+if "trailingSlash" not in t and needle in t:
+    t = t.replace(needle, needle + "\n\ttrailingSlash: true,", 1)
+# Remove legacy R3DTOS patch that put skip under experimental
+old_exp = "typedRoutes: true,\n\t\tskipTrailingSlashRedirect: true,\n"
+if old_exp in t:
+    t = t.replace(old_exp, "typedRoutes: true,\n", 1)
+if "skipTrailingSlashRedirect" not in t:
+    tl = "\ttrailingSlash: true,"
+    if tl in t:
+        t = t.replace(tl, tl + "\n\tskipTrailingSlashRedirect: true,", 1)
+if "Cross-Origin-Embedder-Policy" in t or "headers: async" in t:
+    t2 = strip_headers_async_block(t)
+    if t2 != t:
+        t = t2
+p.write_text(t, encoding="utf-8")
+PY
+
 # ── Install pnpm and dependencies ────────────────────────────
 npm install -g pnpm
 cd ${RATOS_CONFIGURATOR_DIR}/src
 sudo -u pi pnpm install
+
+# ── Upstream hardening (v2.1.x): empty printer list / tRPC 500s ─────────────
+# - printer.printers sorts with b.description.indexOf — missing description throws.
+# - getBoards() throws if any board-definition.json fails Zod parse — breaks getPrinters().
+sudo -u pi python3 - "${RATOS_CONFIGURATOR_DIR}" <<'PATCHPY'
+from pathlib import Path
+import sys
+
+base = Path(sys.argv[1]) / "src" / "server" / "routers"
+printer_ts = base / "printer.ts"
+mcu_ts = base / "mcu.ts"
+
+if printer_ts.is_file():
+    t = printer_ts.read_text(encoding="utf-8")
+    old = "b.description.indexOf('Discontinued')"
+    new = "(b.description ?? '').indexOf('Discontinued')"
+    if old in t and new not in t:
+        t = t.replace(old, new, 1)
+        printer_ts.write_text(t, encoding="utf-8")
+        print("patched printer.ts: description sort guard")
+    else:
+        print("printer.ts: skip (already patched or upstream changed)")
+
+if mcu_ts.is_file():
+    t = mcu_ts.read_text(encoding="utf-8")
+    needle = """\t\t\ttry {
+\t\t\t\treturn BoardWithDetectionStatus.parse(b);
+\t\t\t} catch (e) {
+\t\t\t\tthrow new TRPCError({
+\t\t\t\t\tcode: 'INTERNAL_SERVER_ERROR',
+\t\t\t\t\tmessage: `Invalid board definition for ${b.name} in ${b.path}`,
+\t\t\t\t\tcause: e,
+\t\t\t\t});
+\t\t\t}
+\t\t});"""
+    repl = """\t\t\ttry {
+\t\t\t\treturn BoardWithDetectionStatus.parse(b);
+\t\t\t} catch (e) {
+\t\t\t\tconsole.error(`R3DTOS: skipping invalid board definition at ${String((b as { path?: string }).path ?? 'unknown')}:`, e);
+\t\t\t\treturn null;
+\t\t\t}
+\t\t})
+\t\t.filter((b): b is BoardWithDetectionStatus => b != null);"""
+    if needle in t:
+        t = t.replace(needle, repl, 1)
+        mcu_ts.write_text(t, encoding="utf-8")
+        print("patched mcu.ts: skip invalid board definitions")
+    else:
+        print("mcu.ts: skip (already patched or upstream changed)")
+PATCHPY
 
 # ── Build the Next.js production app ─────────────────────────
 # CI runners are memory-tight; cap Node heap explicitly to reduce OOM during Next build.

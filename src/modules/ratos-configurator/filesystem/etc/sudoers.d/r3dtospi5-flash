@@ -9,7 +9,7 @@ pi ALL=(ALL) NOPASSWD: /usr/bin/dfu-util
 pi ALL=(ALL) NOPASSWD: /usr/bin/avrdude
 pi ALL=(ALL) NOPASSWD: /usr/bin/stm32flash
 pi ALL=(ALL) NOPASSWD: /home/pi/klipper/scripts/flash-sdcard.sh
-pi ALL=(ALL) NOPASSWD: /home/pi/ratos-configurator/scripts/*.sh
+pi ALL=(ALL) NOPASSWD: /home/pi/ratos-configurator/src/scripts/*.sh
 
 # Allow systemctl restart of klipper and moonraker
 pi ALL=(ALL) NOPASSWD: /bin/systemctl restart klipper
