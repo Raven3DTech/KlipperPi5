@@ -1,7 +1,8 @@
 # R3DTOS PI5 — CustomPiOS master config (RatOS v2.1.x stack port for Raspberry Pi OS / Pi 5)
 # ------------------------------------
 # Module order matters; each module can depend on the previous.
-# **base** must run first: on modern Raspberry Pi OS there is no default login until `userconf.txt`
+# **prebase** runs `apt-get update` before **base** so `userconf-pi` upgrade in `base` does not fail on stale lists.
+# **base** must run next: on modern Raspberry Pi OS there is no default login until `userconf.txt`
 # is written on the boot partition (CustomPiOS `base` module). Without it, SSH shows
 # "valid user has been set up" and `pi` / `raspberry` never work — same out-of-box UX as RatOS.
 # klipper must come before moonraker, moonraker before mainsail,
@@ -11,7 +12,7 @@
 # network-support: WiFi firmware + NetworkManager (Bookworm); run early after base apt state is ready.
 # hotspot: RatOS-derived autohotspot (hostapd + dnsmasq); after network-support. See BUILD.md vs NetworkManager.
 # Modules (comma-separated; CustomPiOS v2 strips spaces, so use commas)
-export MODULES="base,klipper,network-support,hotspot,ratos-configuration,dfu-util,moonraker,timelapse,mainsail,crowsnest,sonar,klipperscreen,rpi_mcu,ratos-configurator"
+export MODULES="prebase,base,klipper,network-support,hotspot,ratos-configuration,dfu-util,moonraker,timelapse,mainsail,crowsnest,sonar,klipperscreen,rpi_mcu,ratos-configurator"
 
 # Board: raspberrypiarm64 = RPi OS Lite arm64 (Pi 4 / Pi 5)
 export BASE_BOARD="raspberrypiarm64"
@@ -46,10 +47,10 @@ export BASE_LOCALE="en_AU.UTF-8"
 # Keyboard
 export BASE_KEYBOARD_LAYOUT="us"
 
-# Applied by CustomPiOS `base` module (raspi-config nonint in chroot)
-export BASE_CONFIG_TIMEZONE="${BASE_TIMEZONE}"
-export BASE_CONFIG_LOCALE="${BASE_LOCALE}"
-export BASE_CONFIG_KEYBOARD="${BASE_KEYBOARD_LAYOUT}"
+# Do not set BASE_CONFIG_TIMEZONE / LOCALE / KEYBOARD here: CustomPiOS `base` runs
+# raspi-config nonint before other modules' `apt-get update`, and locale-gen for
+# e.g. en_AU.UTF-8 often fails the chroot on GitHub Actions. Defaults leave raspi-config
+# skips; first-boot / manual raspi-config can still apply BASE_* preferences on the Pi.
 
 # Enable SSH on first boot (empty file on boot partition + sshd tweaks — variable is BASE_SSH_ENABLE in CustomPiOS)
 export BASE_SSH_ENABLE=yes
