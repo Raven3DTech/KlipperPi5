@@ -1,3 +1,8 @@
+# Sourced by bash on Linux (CustomPiOS build / CI); CRLF breaks `source` with $'\r' errors
+src/config text eol=lf
+Makefile text eol=lf
+scripts/*.sh text eol=lf
+
 # CustomPiOS module scripts must use LF inside the Linux chroot
 src/modules/**/start_chroot_script text eol=lf
 src/modules/**/config text eol=lf
