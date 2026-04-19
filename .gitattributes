@@ -8,3 +8,5 @@ src/modules/**/start_chroot_script text eol=lf
 src/modules/**/config text eol=lf
 # RatOS hotspot payload (bash scripts + configs) must stay LF for the image chroot
 src/modules/hotspot/filesystem/** text eol=lf
+# Mainsail module payloads (shell shebangs break in chroot if CRLF → "required file not found")
+src/modules/mainsail/filesystem/** text eol=lf
