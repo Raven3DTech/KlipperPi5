@@ -15,7 +15,15 @@
 
 wifidev="wlan0" #device name to use. Default is wlan0.
 ethdev="eth0" #Ethernet port to use with IP tables
-#use the command: iw dev ,to see wifi interface name 
+#use the command: iw dev ,to see wifi interface name
+
+# If wlan0 does not exist (renamed iface, some images), use the first wireless interface from `iw dev`.
+if ! ip link show "$wifidev" >/dev/null 2>&1; then
+	_w=$(iw dev 2>/dev/null | awk '/Interface /{print $2; exit}')
+	if [ -n "${_w}" ]; then
+		wifidev="${_w}"
+	fi
+fi
 
 IFSdef=$IFS
 cnt=0
@@ -50,7 +58,10 @@ createAdHocNetwork()
     ip link set dev "$wifidev" down
     ip a add 192.168.50.1/24 brd + dev "$wifidev"
     ip link set dev "$wifidev" up
-    dhcpcd -k "$wifidev" >/dev/null 2>&1
+    # Bookworm + NetworkManager: dhcpcd.service is often absent; avoid noisy failures.
+    if command -v dhcpcd >/dev/null 2>&1; then
+        dhcpcd -k "$wifidev" >/dev/null 2>&1 || true
+    fi
     if iptables 2>&1 | grep 'no command specified' ; then
     	iptables -t nat -A POSTROUTING -o "$ethdev" -j MASQUERADE
     	# iptables -A FORWARD -i "$ethdev" -o "$wifidev" -m state --state RELATED,ESTABLISHED -j ACCEPT
@@ -67,7 +78,7 @@ createAdHocNetwork()
     systemctl start hostapd
     # dhcpcd + NetworkManager both touching wlan causes flaps; NM-only images skip this.
     if ! systemctl is-active --quiet NetworkManager 2>/dev/null; then
-        systemctl restart dhcpcd
+        systemctl try-restart dhcpcd.service 2>/dev/null || systemctl restart dhcpcd.service 2>/dev/null || true
     fi
     echo 1 > /proc/sys/net/ipv4/ip_forward
     # echo 1 > /proc/sys/net/ipv6/conf/all/forwarding
@@ -90,7 +101,9 @@ KillHotspot()
     # echo 0 > /proc/sys/net/ipv6/conf/all/forwarding
     ip addr flush dev "$wifidev"
     ip link set dev "$wifidev" up
-    dhcpcd  -n "$wifidev" >/dev/null 2>&1
+    if command -v dhcpcd >/dev/null 2>&1; then
+        dhcpcd -n "$wifidev" >/dev/null 2>&1 || true
+    fi
     if command -v nmcli >/dev/null 2>&1 && systemctl is-active --quiet NetworkManager 2>/dev/null; then
         nmcli device set "$wifidev" managed yes 2>/dev/null || true
     fi
@@ -138,7 +151,8 @@ ssidChk=('NoSSid')
 i=0; j=0
 until [ $i -eq 1 ] #wait for wifi if busy, usb wifi is slower.
 do
-        ssidreply=$((iw dev "$wifidev" scan ap-force | egrep "^BSS|SSID:") 2>&1) >/dev/null 2>&1 
+        # Must be $(...) — $((...)) is arithmetic and breaks scan output (no SSIDs detected → broken hotspot).
+        ssidreply=$(iw dev "$wifidev" scan ap-force 2>&1 | egrep "^BSS|SSID:" || true)
         #echo "SSid's in range: " $ssidreply
 	printf '%s\n' "${ssidreply[@]}"
         echo "Device Available Check try " $j
@@ -189,11 +203,15 @@ done
 
 NoDevice()
 {
-	#if no wifi device,ie usb wifi removed, activate wifi so when it is
-	#reconnected wifi to a router will be available
-	echo "No wifi device connected"
-	wpa_supplicant -B -i "$wifidev" -c /etc/wpa_supplicant/wpa_supplicant.conf >/dev/null 2>&1
-	exit 1
+	# wlan0 often not ready at first boot — do not exit the whole script (that prevented any hotspot).
+	echo "No wifi device yet (scan not ready), retry $j"
+	j=$((j + 1))
+	sleep 3
+	if (($j >= 10)); then
+		echo "wlan0 still unavailable after waits — continuing without scan (assume no known SSID)."
+		ssidreply=""
+		i=1
+	fi
 }
 
 chksys

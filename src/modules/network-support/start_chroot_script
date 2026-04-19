@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# R3DTOS PI5 — WiFi firmware + userland (Ethernet + NetworkManager come from the base Pi OS image).
+# RavenOS PI5 — WiFi firmware + userland (Ethernet + NetworkManager come from the base Pi OS image).
 # Avoid `systemctl` / full `network-manager` reinstall inside the chroot (can hang or fail in CI).
 set -ex
 
@@ -15,6 +15,6 @@ apt-get install -y --no-install-recommends \
     wireless-regdb \
     firmware-brcm80211
 
-# ModemManager is masked on first real boot (see r3dtospi5-firstboot.sh) so it does not grab USB-serial.
+# ModemManager is masked on first real boot (see ravenos-firstboot.sh) so it does not grab USB-serial.
 
 echo_green "network-support: WiFi firmware + WPA tools ensured (NM from base image)"

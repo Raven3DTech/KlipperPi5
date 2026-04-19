@@ -1,6 +1,6 @@
 #!/bin/bash
 # ============================================================
-# R3DTOS PI5 — Mainsail Module Install Script
+# RavenOS PI5 — Mainsail module install script
 # ============================================================
 set -ex
 
@@ -45,7 +45,7 @@ rm -rf ${MAINSAIL_WEBROOT}
 ln -s ${MAINSAIL_DIR} ${MAINSAIL_WEBROOT}
 
 # ── Mainsail config.json — Moonraker via nginx on same host (:80) ─
-# Hard-coding r3dtospi5.local:7125 breaks when the UI is opened at http://<IP>/ (cross-origin → Moonraker 401/CORS; UI can show 500).
+# Hard-coding hostname:7125 breaks when the UI is opened at http://<IP>/ (cross-origin → Moonraker 401/CORS; UI can show 500).
 cat > ${MAINSAIL_DIR}/config.json << 'EOF'
 {
     "instancesDB": "moonraker",
@@ -67,10 +67,10 @@ rm -f /etc/nginx/sites-enabled/default
 ln -sf /etc/nginx/sites-available/mainsail /etc/nginx/sites-enabled/mainsail
 
 # ── Root URL: Ethernet → Mainsail, no cable → Configurator ───
-mkdir -p /var/lib/r3dtospi5
-chmod +x /usr/local/bin/r3dtospi5-update-nginx-root.sh
-chmod +x /etc/NetworkManager/dispatcher.d/99-r3dtospi5-nginx-root
-/usr/local/bin/r3dtospi5-update-nginx-root.sh
+mkdir -p /var/lib/ravenos
+chmod +x /usr/local/bin/ravenos-update-nginx-root.sh
+chmod +x /etc/NetworkManager/dispatcher.d/99-ravenos-nginx-root
+/usr/local/bin/ravenos-update-nginx-root.sh
 systemctl daemon-reload || true
 
 # ── Verify nginx config ───────────────────────────────────────

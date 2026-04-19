@@ -1,0 +1,15 @@
+[Unit]
+Description=RavenOS PI5 First Boot Setup
+After=network.target
+ConditionPathExists=/home/pi/scripts/ravenos-firstboot.sh
+
+[Service]
+Type=oneshot
+ExecStart=/bin/bash /home/pi/scripts/ravenos-firstboot.sh
+RemainAfterExit=yes
+StandardOutput=journal
+StandardError=journal
+SyslogIdentifier=ravenos-firstboot
+
+[Install]
+WantedBy=multi-user.target

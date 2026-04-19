@@ -4,6 +4,7 @@ src/image/
 src/build_dist
 src/common.sh
 src/custompios-vars
+src/custompios_path
 
 # Node
 node_modules/

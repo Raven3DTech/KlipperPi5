@@ -1,6 +1,6 @@
 #!/bin/bash
 # ============================================================
-# R3DTOS PI5 — prebase: refresh apt lists before CustomPiOS `base`
+# RavenOS PI5 — prebase: refresh apt lists before CustomPiOS `base`
 # The `base` module runs `apt-get install --only-upgrade userconf-pi` without
 # its own `apt-get update`; on fresh Pi OS (e.g. trixie) that can fail CI builds.
 # ============================================================

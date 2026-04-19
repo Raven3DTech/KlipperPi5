@@ -1,0 +1,7 @@
+[Unit]
+Description=RavenOS PI5 — keep Wi-Fi unmanaged while autohotspot hostapd AP is up
+After=NetworkManager.service
+
+[Service]
+Type=oneshot
+ExecStart=/usr/local/bin/ravenos-nm-wlan-ap-guard.sh

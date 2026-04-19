@@ -1,7 +1,7 @@
 # ============================================================
-# R3DTOS PI5 — nginx site config for Mainsail
+# RavenOS PI5 — nginx site config for Mainsail
 # Serves Mainsail on port 80.
-# Proxies /configure/* to RatOS Configurator (Next.js on :3000), same URL
+# Proxies /configure/* to RavenOS Configurator (Next.js on :3000), same URL
 # pattern as stock RatOS (http://<host>/configure).
 # Proxies /websocket, /api, /access, /machine to Moonraker.
 # Redirects /config → / to match RatOS install docs (Mainsail entry URL).
@@ -16,7 +16,7 @@ upstream moonraker {
     server 127.0.0.1:7125;
 }
 
-upstream ratos_configurator {
+upstream ravenos_configurator {
     server 127.0.0.1:3000;
 }
 
@@ -24,7 +24,7 @@ server {
     listen 80 default_server;
     listen [::]:80 default_server;
 
-    server_name r3dtospi5.local _;
+    server_name ravenos.local _;
 
     access_log /var/log/nginx/mainsail-access.log;
     error_log  /var/log/nginx/mainsail-error.log;
@@ -39,14 +39,14 @@ server {
     location = /connecttest.txt { return 302 /; }
     location = /ncsi.txt { return 302 /; }
 
-    # ── RatOS Configurator (Next.js basePath /configure) ─────────
+    # ── RavenOS Configurator (Next.js basePath /configure) ─────────
     # Same entry URL as stock RatOS: http://<host>/configure
     location = /configure {
         return 308 $scheme://$http_host/configure/;
     }
 
     location ^~ /configure/ {
-        proxy_pass         http://ratos_configurator;
+        proxy_pass         http://ravenos_configurator;
         proxy_http_version 1.1;
         proxy_set_header   Host               $host;
         proxy_set_header   X-Real-IP          $remote_addr;
@@ -70,8 +70,8 @@ server {
     index index.html;
 
     # "/" routing: Ethernet plugged (end0/eth0 carrier) → Mainsail; else → /configure/
-    # Fragment: /var/lib/r3dtospi5/nginx-mainsail-root.conf (updated at nginx start + NM events).
-    include /var/lib/r3dtospi5/nginx-mainsail-root.conf;
+    # Fragment: /var/lib/ravenos/nginx-mainsail-root.conf (updated at nginx start + NM events).
+    include /var/lib/ravenos/nginx-mainsail-root.conf;
 
     # ── Moonraker WebSocket ───────────────────────────────────
     location /websocket {

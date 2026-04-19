@@ -1,5 +1,5 @@
 # ============================================================
-# R3DTOS PI5 Makefile
+# RavenOS PI5 Makefile
 # ============================================================
 
 CUSTOMPIOS_PATH ?= ../CustomPiOS
@@ -10,13 +10,13 @@ IMAGE_DIR       := $(SRC_DIR)/image
 .PHONY: help build clean update-paths check-deps download-image
 
 help:
-	@echo "R3DTOS PI5 Build System"
+	@echo "RavenOS PI5 Build System"
 	@echo ""
 	@echo "Targets:"
 	@echo "  make check-deps       Check build dependencies are installed"
 	@echo "  make download-image   Download the base Raspberry Pi OS image"
 	@echo "  make update-paths     Link CustomPiOS paths into this project"
-	@echo "  make build            Build the R3DTOS PI5 image"
+	@echo "  make build            Build the RavenOS PI5 image"
 	@echo "  make clean            Remove build workspace"
 	@echo ""
 	@echo "Variables:"
@@ -47,12 +47,12 @@ update-paths:
 	@echo "✅ Paths updated"
 
 build: check-deps
-	@echo "Building R3DTOS PI5 image..."
+	@echo "Building RavenOS PI5 image..."
 	sudo modprobe loop
 	cd $(SRC_DIR) && sudo bash -x ./build_dist
 	@echo ""
 	@echo "✅ Build complete!"
-	@echo "Image: $(WORKSPACE_DIR)/<clone-folder-name>.img  (e.g. R3DTOS-PI5.img if repo path ends with R3DTOS-PI5/src)"
+	@echo "Image: $(WORKSPACE_DIR)/<clone-folder-name>.img  (e.g. R3DTOS-PI5.img — name matches the parent directory of src/)"
 
 clean:
 	@echo "Cleaning workspace..."

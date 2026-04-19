@@ -1,6 +1,6 @@
 #!/bin/bash
 # ============================================================
-# R3DTOS PI5 — Configurator Module Install Script
+# RavenOS PI5 — Configurator module (upstream Rat-OS/RatOS-configurator)
 # ============================================================
 set -ex
 
@@ -64,7 +64,7 @@ sudo -u pi cp -f "${FONTPATH}" "${RATOS_CONFIGURATOR_DIR}/src/fonts/inter.ttf"
 sudo -u pi tee "${RATOS_CONFIGURATOR_DIR}/src/app/fonts.tsx" >/dev/null <<'FONTSEOF'
 import localFont from 'next/font/local';
 
-// R3DTOS PI5: avoid next/font/google (network at build time). Inter TTF from fonts-inter (or DejaVu fallback).
+// RavenOS PI5: avoid next/font/google (network at build time). Inter TTF from fonts-inter (or DejaVu fallback).
 export const inter = localFont({
   src: '../fonts/inter.ttf',
   variable: '--inter-font',
@@ -107,7 +107,7 @@ t = p.read_text(encoding="utf-8")
 needle = "basePath: '/configure',"
 if "trailingSlash" not in t and needle in t:
     t = t.replace(needle, needle + "\n\ttrailingSlash: true,", 1)
-# Remove legacy R3DTOS patch that put skip under experimental
+# Remove legacy patch that put skip under experimental
 old_exp = "typedRoutes: true,\n\t\tskipTrailingSlashRedirect: true,\n"
 if old_exp in t:
     t = t.replace(old_exp, "typedRoutes: true,\n", 1)
@@ -183,28 +183,32 @@ sudo -u pi bash -lc "cd ${RATOS_CONFIGURATOR_DIR}/src && pnpm exec prettier --wr
 # CI runners are memory-tight; cap Node heap explicitly to reduce OOM during Next build.
 sudo -u pi env NODE_OPTIONS="--max-old-space-size=4096" pnpm run build
 
+# ── OS release (Configurator tRPC osVersion: statSync('/etc/ratos-release') throws if missing → HTTP 500) ─
+cp /filesystem/etc/ratos-release /etc/ratos-release
+chmod 644 /etc/ratos-release
+
 # ── Sudo rules so configurator can flash boards ───────────────
-cp /filesystem/etc/sudoers.d/r3dtospi5-flash \
-   /etc/sudoers.d/r3dtospi5-flash
-chmod 440 /etc/sudoers.d/r3dtospi5-flash
-visudo -c -f /etc/sudoers.d/r3dtospi5-flash
+cp /filesystem/etc/sudoers.d/ravenos-flash \
+   /etc/sudoers.d/ravenos-flash
+chmod 440 /etc/sudoers.d/ravenos-flash
+visudo -c -f /etc/sudoers.d/ravenos-flash
 
 # ── Scripts directory ─────────────────────────────────────────
 sudo -u pi mkdir -p /home/pi/scripts
-cp /filesystem/home/pi/scripts/r3dtospi5-firstboot.sh \
-   /home/pi/scripts/r3dtospi5-firstboot.sh
-chmod +x /home/pi/scripts/r3dtospi5-firstboot.sh
-chown pi:pi /home/pi/scripts/r3dtospi5-firstboot.sh
+cp /filesystem/home/pi/scripts/ravenos-firstboot.sh \
+   /home/pi/scripts/ravenos-firstboot.sh
+chmod +x /home/pi/scripts/ravenos-firstboot.sh
+chown pi:pi /home/pi/scripts/ravenos-firstboot.sh
 
 # ── systemd services ──────────────────────────────────────────
 cp /filesystem/etc/systemd/system/ratos-configurator.service \
    /etc/systemd/system/ratos-configurator.service
 
-cp /filesystem/etc/systemd/system/r3dtospi5-firstboot.service \
-   /etc/systemd/system/r3dtospi5-firstboot.service
+cp /filesystem/etc/systemd/system/ravenos-firstboot.service \
+   /etc/systemd/system/ravenos-firstboot.service
 
 systemctl_if_exists enable ratos-configurator
-systemctl_if_exists enable r3dtospi5-firstboot
+systemctl_if_exists enable ravenos-firstboot
 systemctl_if_exists enable avahi-daemon
 
 echo "✅ Configurator module installed"

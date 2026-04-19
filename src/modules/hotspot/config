@@ -1,6 +1,10 @@
 #!/usr/bin/env bash
 # RatOS-derived auto-hotspot (raspberryconnect.com). See BUILD.md for NM / dhcpcd notes.
-[ -n "$HOTSPOT_NAME" ] || HOTSPOT_NAME="r3dtospi5"
+[ -n "$HOTSPOT_NAME" ] || HOTSPOT_NAME="ravenos"
+# Wireless interface for autohotspot / hostapd / dnsmasq (Pi OS Lite is usually wlan0).
+[ -n "$HOTSPOT_WIFI_IF" ] || HOTSPOT_WIFI_IF="wlan0"
 [ -n "$HOTSPOT_PASSWORD" ] || HOTSPOT_PASSWORD="raspberry"
 [ -n "$HOTSPOT_CHANNEL" ] || HOTSPOT_CHANNEL="6"
+# Wi‑Fi regulatory domain for hostapd (nl80211). Override in config.local if not AU.
+[ -n "$HOTSPOT_COUNTRY" ] || HOTSPOT_COUNTRY="AU"
 :

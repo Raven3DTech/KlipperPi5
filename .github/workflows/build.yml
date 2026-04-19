@@ -1,4 +1,4 @@
-name: Build R3DTOS PI5 Image
+name: Build RavenOS PI5 Image
 
 on:
   push:
@@ -19,7 +19,7 @@ jobs:
     timeout-minutes: 360
 
     steps:
-      - name: Checkout R3DTOS PI5
+      - name: Checkout RavenOS PI5
         uses: actions/checkout@v4
         with:
           path: R3DTOS-PI5
@@ -131,7 +131,7 @@ jobs:
             echo "No image found in ${WORKSPACE}" && ls -la "${WORKSPACE}" && exit 1
           fi
           EXT="${IMG##*.img}"
-          DEST="${WORKSPACE}/R3DTOS-PI5-${VERSION}-arm64.img${EXT}"
+          DEST="${WORKSPACE}/RavenOS-PI5-${VERSION}-arm64.img${EXT}"
           sudo mv "${IMG}" "${DEST}"
           sudo chown $USER:$USER "${DEST}" || true
           
@@ -170,7 +170,7 @@ jobs:
       - name: Upload image artifact
         uses: actions/upload-artifact@v4
         with:
-          name: R3DTOS-PI5-${{ steps.rename.outputs.VERSION }}-arm64
+          name: RavenOS-PI5-${{ steps.rename.outputs.VERSION }}-arm64
           path: ${{ steps.rename.outputs.IMAGE_PATH }}
           retention-days: 30
 
@@ -193,11 +193,11 @@ jobs:
         uses: softprops/action-gh-release@v2
         with:
           files: ${{ steps.rename.outputs.IMAGE_PATH }}
-          name: "R3DTOS PI5 ${{ github.ref_name }}"
+          name: "RavenOS PI5 ${{ github.ref_name }}"
           body: |
-            ## R3DTOS PI5 ${{ github.ref_name }}
+            ## RavenOS PI5 ${{ github.ref_name }}
 
-            Port of **RatOS v2.1.x** stack to Raspberry Pi OS / Pi 5 — not the upstream RatOS CB1 image. See README.
+            Raspberry Pi OS image with the **RatOS v2.1.x–class** stack — not the upstream RatOS CB1 image. See README.
 
             ${{ steps.changelog.outputs.NOTES }}
 
@@ -209,14 +209,14 @@ jobs:
             1. Download the `.img.xz` file
             2. Open **Raspberry Pi Imager** → Choose OS → Use Custom
             3. Select the file, choose your SD card / NVMe, and write
-            4. Boot your Pi, then browse to `http://r3dtospi5.local` (hostname may include a serial suffix after first boot)
+            4. Boot your Pi, then browse to `http://ravenos.local` (hostname may include a serial suffix after first boot)
 
             ### Default Credentials
             | Service | URL | User | Password |
             |---|---|---|---|
-            | SSH | `ssh pi@r3dtospi5.local` | `pi` | `raspberry` |
-            | Mainsail | `http://r3dtospi5.local` | — | — |
-            | Configurator | `http://r3dtospi5.local/configure` | — | — |
+            | SSH | `ssh pi@ravenos.local` | `pi` | `raspberry` |
+            | Mainsail | `http://ravenos.local` | — | — |
+            | RavenOS Configurator | `http://ravenos.local/configure` | — | — |
 
             > ⚠️ Change the default password after first login: `passwd pi`
           draft: false

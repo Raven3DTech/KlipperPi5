@@ -1,0 +1,7 @@
+[Unit]
+Description=RavenOS PI5 — second autohotspot pass if hostapd did not stay up (boot race)
+After=NetworkManager.service autohotspot.service
+
+[Service]
+Type=oneshot
+ExecStart=/usr/local/bin/ravenos-autohotspot-deferred.sh

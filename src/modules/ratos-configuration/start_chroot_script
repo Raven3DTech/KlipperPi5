@@ -1,5 +1,6 @@
 #!/usr/bin/env bash
-# Ship RatOS-configuration tree for RatOS Configurator + board templates.
+# Ship RatOS modular config (boards, macros, templates) for Configurator + Klipper.
+# Content is copied from RatOS-configurator's configuration/ subtree (same branch as the app).
 # Does NOT run scripts/ratos-install.sh here (requires `pi` user + running `ratos` CLI).
 set -ex
 
@@ -12,21 +13,26 @@ apt-get install -y --no-install-recommends python3-matplotlib curl
 
 CONFIG_PARENT="$(dirname "${RATOS_CONFIGURATION_PATH}")"
 mkdir -p "${CONFIG_PARENT}"
-pushd "${CONFIG_PARENT}" &>/dev/null
 
-if [[ -d "${RATOS_CONFIGURATION_PATH}/.git" ]]; then
-    echo_green "RatOS-configuration already present, skipping clone"
-else
-    rm -rf "${RATOS_CONFIGURATION_PATH}"
-    echo_green "Cloning RatOS-configuration (${RATOS_CONFIGURATION_BRANCH}) ..."
-    sudo -u "${BASE_USER}" git clone -b "${RATOS_CONFIGURATION_BRANCH}" --depth 1 \
-        "${RATOS_CONFIGURATION_REPO}" "$(basename "${RATOS_CONFIGURATION_PATH}")"
+TMP_CLONE="$(mktemp -d)"
+trap 'rm -rf "${TMP_CLONE}"' EXIT
+
+echo_green "Fetching RatOS-configurator (${RATOS_CONFIGURATOR_CONFIGURATION_BRANCH}) for configuration/ ..."
+sudo -u "${BASE_USER}" git clone -b "${RATOS_CONFIGURATOR_CONFIGURATION_BRANCH}" --depth 1 \
+    "${RATOS_CONFIGURATOR_REPO}" "${TMP_CLONE}/ratos-configurator"
+
+if [[ ! -d "${TMP_CLONE}/ratos-configurator/configuration" ]]; then
+    echo_red "Missing configuration/ in RatOS-configurator clone"
+    exit 1
 fi
 
-chown -R "${BASE_USER}:${BASE_USER}" "${RATOS_CONFIGURATION_PATH}"
-popd &>/dev/null
+rm -rf "${RATOS_CONFIGURATION_PATH}"
+mkdir -p "${RATOS_CONFIGURATION_PATH}"
+cp -a "${TMP_CLONE}/ratos-configurator/configuration/." "${RATOS_CONFIGURATION_PATH}/"
 
-# Align upstream ratos-update.sh with Bookworm + R3DTOS PI5 (Pi 5 image stack)
+chown -R "${BASE_USER}:${BASE_USER}" "${RATOS_CONFIGURATION_PATH}"
+
+# Align upstream ratos-update.sh with Bookworm + RavenOS PI5 (Pi 5 image stack)
 RU="${RATOS_CONFIGURATION_PATH}/scripts/ratos-update.sh"
 if [[ -f "${RU}" ]]; then
     KLIB="/home/${BASE_USER}/klippy-env/lib"
@@ -37,8 +43,8 @@ if [[ -f "${RU}" ]]; then
             sed -i "s/python3\\.9/${PYDIR}/g" "${RU}" || true
         fi
     fi
-    # R3DTOS PI5 ships Node 20 for RatOS Configurator; do not downgrade to Node 18.
-    sed -i 's/^ensure_node_18$/# &  # R3DTOS PI5: Node 20 image/' "${RU}" || true
+    # RavenOS PI5 ships Node 20 for RavenOS Configurator; do not downgrade to Node 18.
+    sed -i 's/^ensure_node_18$/# &  # RavenOS PI5: Node 20 image/' "${RU}" || true
 fi
 
-echo_green "RatOS-configuration installed at ${RATOS_CONFIGURATION_PATH}"
+echo_green "RatOS printer config tree installed at ${RATOS_CONFIGURATION_PATH} (from RatOS-configurator configuration/)"

@@ -1,6 +1,6 @@
 # Workspace layout (R3DTech Configurator & builds)
 
-This file lives in the **R3DTOS PI5** image repository. Use it when this repo sits inside a larger folder (for example **R3DTech Configurator**) next to other projects (`client/`, `server/`, etc.).
+This file lives in the **RavenOS PI5** image repository. Use it when this repo sits inside a larger folder (for example **R3DTech Configurator**) next to other projects (`client/`, `server/`, etc.).
 
 ## CustomPiOS sibling
 
@@ -28,7 +28,7 @@ Then use `cd R3DTOS-PI5/src` for builds; it is the same working tree.
 ## Where to build
 
 - **Linux:** native, VM, or **WSL2** with Ubuntu — run `make build` or `sudo bash -x ./build_dist` from `src/` (see **README.md**).
-- **GitHub Actions:** push to `main` or run workflow **Build R3DTOS PI5 Image** manually; artifacts use the **`R3DTOS-PI5-…`** naming from **`.github/workflows/build.yml`**.
+- **GitHub Actions:** push to `main` or run workflow **Build RavenOS PI5 Image** manually; artifacts use the **`R3DTOS-PI5-…`** naming from **`.github/workflows/build.yml`**.
 
 ## Upstream repository URL
 

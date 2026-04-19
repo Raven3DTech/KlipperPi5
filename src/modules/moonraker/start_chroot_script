@@ -1,6 +1,6 @@
 #!/bin/bash
 # ============================================================
-# R3DTOS PI5 — Moonraker Module Install Script
+# RavenOS PI5 — Moonraker module install script
 # ============================================================
 set -ex
 

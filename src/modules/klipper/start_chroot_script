@@ -1,6 +1,6 @@
 #!/bin/bash
 # ============================================================
-# R3DTOS PI5 — Klipper Module Install Script
+# RavenOS PI5 — Klipper module install script
 # Runs inside the chroot of the base image during build.
 # ============================================================
 set -ex
@@ -68,7 +68,7 @@ systemctl_if_exists enable klipper
 usermod -a -G tty,dialout,plugdev pi
 
 # ── udev rules for DFU / STM32 flashing ─────────────────────
-cat > /etc/udev/rules.d/49-r3dtospi5.rules << 'EOF'
+cat > /etc/udev/rules.d/49-ravenos.rules << 'EOF'
 # STM32 DFU
 SUBSYSTEMS=="usb", ATTRS{idVendor}=="0483", ATTRS{idProduct}=="df11", MODE="0666", GROUP="plugdev"
 # RP2040 (Raspberry Pi Pico)

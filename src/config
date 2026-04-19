@@ -1,4 +1,4 @@
-# R3DTOS PI5 — CustomPiOS master config (RatOS v2.1.x stack port for Raspberry Pi OS / Pi 5)
+# RavenOS PI5 — CustomPiOS master config (RatOS v2.1.x–derived stack for Raspberry Pi OS / Pi 5)
 # ------------------------------------
 # Module order matters; each module can depend on the previous.
 # **prebase** runs `apt-get update` before **base** so `userconf-pi` upgrade in `base` does not fail on stale lists.
@@ -37,13 +37,13 @@ export BASE_IMAGE_PATH="${DIST_PATH}/image"
 [ -n "$BASE_ZIP_IMG" ] || export BASE_ZIP_IMG="${BASE_IMAGE_PATH}/raspios_lite_arm64_latest.img.xz"
 
 # Distro metadata (CustomPiOS `base` end_chroot writes hostname + /etc/<dist>_version)
-export DIST_NAME="R3DTOS-PI5"
+export DIST_NAME="RavenOS-PI5"
 export DIST_VERSION="1.0.0"
 
 # Base system settings
 export BASE_USER=pi
 export BASE_USER_PASSWORD=raspberry
-export BASE_HOSTNAME=r3dtospi5
+export BASE_HOSTNAME=ravenos
 export BASE_OVERRIDE_HOSTNAME="${BASE_HOSTNAME}"
 
 # Timezone

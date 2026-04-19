@@ -1,5 +1,5 @@
 [Unit]
-Description=R3DTOS PI5 RatOS Configurator
+Description=RavenOS Configurator (RatOS-configurator upstream)
 Documentation=https://github.com/Rat-OS/RatOS-configurator
 After=network.target moonraker.service
 Wants=moonraker.service

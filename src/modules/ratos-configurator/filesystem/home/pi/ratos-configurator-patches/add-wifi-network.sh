@@ -10,17 +10,34 @@ if [ ! "${EUID}" -eq 0 ]; then
 	exit 1
 fi
 
-NETWORK=$(sh -c "wpa_passphrase \"$1\" \"$2\" | sed '/^\s*#psk=\".*\"$/d'")
-if [[ ! $NETWORK =~ ^network ]]; then
+SSID="${1:?ssid required}"
+PASS="${2:?passphrase required}"
+COUNTRY="${3:-GB}"
+FREQ="${4:-}"
+HIDDEN="${5:-shown}"
+
+# Do not use `sh -c "wpa_passphrase \"$1\" \"$2\" …"` — special chars in the passphrase break quoting and
+# always fail the `^network` check → Configurator shows "Invalid wifi credentials" for good passwords.
+WPAP_ERR="$(mktemp)"
+set +e
+NETWORK="$(wpa_passphrase "${SSID}" "${PASS}" 2>"${WPAP_ERR}" | sed '/^\s*#psk=\".*\"$/d' | tr -d '\r')"
+set -e
+if [[ -z "${NETWORK}" ]] || ! grep -q '^[[:space:]]*network[[:space:]]*={' <<<"${NETWORK}"; then
+	echo "wpa_passphrase failed (WPA passphrase must be 8–63 chars, or SSID/passphrase has an unsupported character). stderr was:" >&2
+	cat "${WPAP_ERR}" >&2 || true
+	rm -f "${WPAP_ERR}"
 	echo "Invalid wifi credentials"
 	exit 1
 fi
+rm -f "${WPAP_ERR}"
 
-# Add frequencies
-NETWORK=${NETWORK/"}"/"	scan_freq=$4
+# Optional scan frequency (omit if UI sent empty — bad value corrupts the network block)
+if [ -n "${FREQ}" ]; then
+	NETWORK=${NETWORK/"}"/"	scan_freq=${FREQ}
 }"}
+fi
 
-if [ "$5" = "hidden" ]; then
+if [ "${HIDDEN}" = "hidden" ]; then
 	NETWORK=${NETWORK/"}"/"	scan_ssid=1
 }"}
 fi
@@ -84,16 +101,16 @@ $NETWORK
 #country=DE # Germany
 #country=FR # France
 #country=US # United States
-country=$3
+country=${COUNTRY}
 
 ### You should not have to change the lines below #####################
 ctrl_interface=DIR=/var/run/wpa_supplicant GROUP=netdev
 update_config=1
 __EOF
 
-# ── R3DTOS PI5: NetworkManager (Bookworm) ────────────────────────
+# ── RavenOS PI5: NetworkManager (Bookworm) ────────────────────────
 if command -v nmcli >/dev/null 2>&1 && systemctl is-active --quiet NetworkManager 2>/dev/null; then
-	echo "R3DTOS PI5: Applying Wi-Fi via NetworkManager (stopping fallback AP if active)..."
+	echo "RavenOS PI5: Applying Wi-Fi via NetworkManager (stopping fallback AP if active)..."
 	systemctl stop hostapd 2>/dev/null || true
 	systemctl stop dnsmasq 2>/dev/null || true
 	WLAN=$(iw dev 2>/dev/null | awk '$1 == "Interface" { print $2; exit }')
@@ -101,7 +118,7 @@ if command -v nmcli >/dev/null 2>&1 && systemctl is-active --quiet NetworkManage
 		echo "No wireless interface found (iw dev)."
 		exit 1
 	fi
-	iw reg set "${3:-GB}" 2>/dev/null || true
+	iw reg set "${COUNTRY}" 2>/dev/null || true
 	nmcli networking on 2>/dev/null || true
 	nmcli radio wifi on 2>/dev/null || true
 	nmcli device set "${WLAN}" managed yes 2>/dev/null || true
@@ -109,10 +126,10 @@ if command -v nmcli >/dev/null 2>&1 && systemctl is-active --quiet NetworkManage
 	sleep 2
 	nmcli connection delete ratos-wifi 2>/dev/null || true
 	set +e
-	if [ "$5" = "hidden" ]; then
-		nmcli -w 120 device wifi connect "$1" password "$2" ifname "${WLAN}" name ratos-wifi hidden yes
+	if [ "${HIDDEN}" = "hidden" ]; then
+		nmcli -w 120 device wifi connect "${SSID}" password "${PASS}" ifname "${WLAN}" name ratos-wifi hidden yes
 	else
-		nmcli -w 120 device wifi connect "$1" password "$2" ifname "${WLAN}" name ratos-wifi
+		nmcli -w 120 device wifi connect "${SSID}" password "${PASS}" ifname "${WLAN}" name ratos-wifi
 	fi
 	NM_EXIT=$?
 	set -e
@@ -120,7 +137,7 @@ if command -v nmcli >/dev/null 2>&1 && systemctl is-active --quiet NetworkManage
 		echo "nmcli failed to join Wi-Fi (exit ${NM_EXIT}). Check SSID/password and range."
 		exit 1
 	fi
-	echo "R3DTOS PI5: Wi-Fi profile 'ratos-wifi' activated. Reconnect your PC to the printer on the LAN if needed."
+	echo "RavenOS PI5: Wi-Fi profile 'ratos-wifi' activated. Reconnect your PC to the printer on the LAN if needed."
 	exit 0
 fi
 

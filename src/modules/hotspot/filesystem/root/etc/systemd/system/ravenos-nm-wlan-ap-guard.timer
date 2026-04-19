@@ -1,0 +1,11 @@
+[Unit]
+Description=RavenOS PI5 — periodic NM guard for autohotspot Wi-Fi AP
+
+[Timer]
+OnBootSec=25s
+OnUnitActiveSec=30s
+AccuracySec=5s
+Unit=ravenos-nm-wlan-ap-guard.service
+
+[Install]
+WantedBy=timers.target
