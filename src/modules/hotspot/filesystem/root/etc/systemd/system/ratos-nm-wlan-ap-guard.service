@@ -1,0 +1,7 @@
+[Unit]
+Description=RatOS PI5 â€” Wi-Fi guard: keep AP unmanaged while up, recover AP when orphaned
+After=NetworkManager.service
+
+[Service]
+Type=oneshot
+ExecStart=/usr/local/bin/ratos-nm-wlan-ap-guard.sh

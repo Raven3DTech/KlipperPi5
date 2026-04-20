@@ -1,7 +1,0 @@
-[Unit]
-Description=RavenOS PI5 — Wi-Fi guard: keep AP unmanaged while up, recover AP when orphaned
-After=NetworkManager.service
-
-[Service]
-Type=oneshot
-ExecStart=/usr/local/bin/ravenos-nm-wlan-ap-guard.sh

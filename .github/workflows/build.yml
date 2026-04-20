@@ -1,4 +1,4 @@
-name: Build RavenOS PI5 Image
+name: Build RatOS PI5 Image
 
 on:
   push:
@@ -19,7 +19,7 @@ jobs:
     timeout-minutes: 360
 
     steps:
-      - name: Checkout RavenOS PI5
+      - name: Checkout RatOS PI5
         uses: actions/checkout@v4
         with:
           path: RAVENOS-PI5
@@ -30,27 +30,27 @@ jobs:
           repository: guysoft/CustomPiOS
           path: CustomPiOS
 
-      - name: Fail fast on CRLF in RavenOS tree
+      - name: Fail fast on CRLF in RatOS tree
         run: |
           set -euo pipefail
           cd "${GITHUB_WORKSPACE}/RAVENOS-PI5"
           # -I skips binary blobs; CRLF breaks bash source, shebangs, visudo, systemd in chroot.
           bad=$(git grep -l -I $'\r' -- . || true)
           if [ -n "${bad}" ]; then
-            echo "::error::CRLF in tracked text — normalize to LF (see .gitattributes). Files:" >&2
+            echo "::error::CRLF in tracked text â€” normalize to LF (see .gitattributes). Files:" >&2
             echo "${bad}" >&2
             exit 1
           fi
 
       # GitHub-hosted runners often have a hostname not listed in /etc/hosts; sudo then prints
-      # "unable to resolve host …" on every invocation (harmless but noisy in build logs).
+      # "unable to resolve host â€¦" on every invocation (harmless but noisy in build logs).
       - name: Map VM hostname in /etc/hosts (quiet sudo warnings)
         run: |
           H=$(hostname)
           grep -qF "$H" /etc/hosts || echo "127.0.0.1 $H" | sudo tee -a /etc/hosts
 
-      # Enlarged Pi images are multi‑GB raw files; PiShrink mounts the image and zero‑fills free
-      # space before truncate — needs several GB free on / or the shrink step hits ENOSPC / resize2fs errors.
+      # Enlarged Pi images are multiâ€‘GB raw files; PiShrink mounts the image and zeroâ€‘fills free
+      # space before truncate â€” needs several GB free on / or the shrink step hits ENOSPC / resize2fs errors.
       - name: Free disk space on runner (PiShrink / large .img)
         run: |
           sudo rm -rf /usr/share/dotnet /usr/local/lib/android /opt/ghc 2>/dev/null || true
@@ -84,7 +84,7 @@ jobs:
           echo "Downloaded: $(ls -lh base-image-cache/)"
 
       # CustomPiOS `base` module sources `modules/base/config`, which overwrites BASE_ZIP_IMG when unset.
-      # `sudo VAR=… cmd` does not reliably pass VAR into nested config on all runners; keep a copy under
+      # `sudo VAR=â€¦ cmd` does not reliably pass VAR into nested config on all runners; keep a copy under
       # `src/image/` (same as `make download-image`) and use `sudo -E` so BASE_ZIP_IMG survives.
       - name: Stage base image into distro image dir
         run: |
@@ -143,7 +143,7 @@ jobs:
             echo "No image found in ${WORKSPACE}" && ls -la "${WORKSPACE}" && exit 1
           fi
           EXT="${IMG##*.img}"
-          DEST="${WORKSPACE}/RavenOS-PI5-${VERSION}-arm64.img${EXT}"
+          DEST="${WORKSPACE}/RatOS-PI5-${VERSION}-arm64.img${EXT}"
           sudo mv "${IMG}" "${DEST}"
           sudo chown $USER:$USER "${DEST}" || true
           
@@ -152,7 +152,7 @@ jobs:
             echo "Disk before PiShrink / xz:"
             df -h
             if [ "${SKIP_PISHRINK:-false}" = "true" ]; then
-              echo "SKIP_PISHRINK=true — skipping PiShrink (workflow_dispatch). Artifact will be much larger."
+              echo "SKIP_PISHRINK=true â€” skipping PiShrink (workflow_dispatch). Artifact will be much larger."
             else
               echo "Downloading PiShrink..."
               sudo wget -q https://raw.githubusercontent.com/Drewsif/PiShrink/master/pishrink.sh -O /usr/local/bin/pishrink.sh
@@ -166,7 +166,7 @@ jobs:
               echo "Disk after PiShrink:"
               df -h
             fi
-            # PiShrink runs as root; workspace dir often stays root-owned — runner cannot create *.xz here.
+            # PiShrink runs as root; workspace dir often stays root-owned â€” runner cannot create *.xz here.
             sudo chown "$USER:$USER" "${DEST}" "${WORKSPACE}" 2>/dev/null || true
             echo "Compressing heavily with xz..."
             # -T0 uses all available CPU threads for max speed; sudo so output is writable under root-owned paths
@@ -182,7 +182,7 @@ jobs:
       - name: Upload image artifact
         uses: actions/upload-artifact@v4
         with:
-          name: RavenOS-PI5-${{ steps.rename.outputs.VERSION }}-arm64
+          name: RatOS-PI5-${{ steps.rename.outputs.VERSION }}-arm64
           path: ${{ steps.rename.outputs.IMAGE_PATH }}
           retention-days: 30
 
@@ -205,11 +205,11 @@ jobs:
         uses: softprops/action-gh-release@v2
         with:
           files: ${{ steps.rename.outputs.IMAGE_PATH }}
-          name: "RavenOS PI5 ${{ github.ref_name }}"
+          name: "RatOS PI5 ${{ github.ref_name }}"
           body: |
-            ## RavenOS PI5 ${{ github.ref_name }}
+            ## RatOS PI5 ${{ github.ref_name }}
 
-            Raspberry Pi OS image with the **RatOS v2.1.x–class** stack — not the upstream RatOS CB1 image. See README.
+            Raspberry Pi OS image with the **RatOS v2.1.xâ€“class** stack â€” not the upstream RatOS CB1 image. See README.
 
             ${{ steps.changelog.outputs.NOTES }}
 
@@ -219,18 +219,18 @@ jobs:
 
             ### Flash Instructions
             1. Download the `.img.xz` file
-            2. Open **Raspberry Pi Imager** → Choose OS → Use Custom
+            2. Open **Raspberry Pi Imager** â†’ Choose OS â†’ Use Custom
             3. Select the file, choose your SD card / NVMe, and write
-            4. Boot your Pi, then browse to `http://ravenos.local` (hostname may include a serial suffix after first boot)
+            4. Boot your Pi, then browse to `http://ratos.local` (hostname may include a serial suffix after first boot)
 
             ### Default Credentials
             | Service | URL | User | Password |
             |---|---|---|---|
-            | SSH | `ssh pi@ravenos.local` | `pi` | `raspberry` |
-            | Mainsail | `http://ravenos.local` | — | — |
-            | RavenOS Configurator | `http://ravenos.local/configure` | — | — |
+            | SSH | `ssh pi@ratos.local` | `pi` | `raspberry` |
+            | Mainsail | `http://ratos.local` | â€” | â€” |
+            | RatOS Configurator | `http://ratos.local/configure` | â€” | â€” |
 
-            > ⚠️ Change the default password after first login: `passwd pi`
+            > âš ï¸ Change the default password after first login: `passwd pi`
           draft: false
           prerelease: false
         env:

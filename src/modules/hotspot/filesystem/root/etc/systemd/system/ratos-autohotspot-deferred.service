@@ -1,0 +1,7 @@
+[Unit]
+Description=RatOS PI5 â€” second autohotspot pass if hostapd did not stay up (boot race)
+After=NetworkManager.service autohotspot.service
+
+[Service]
+Type=oneshot
+ExecStart=/usr/local/bin/ratos-autohotspot-deferred.sh

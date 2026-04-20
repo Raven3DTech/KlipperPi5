@@ -1,9 +1,9 @@
 #!/bin/sh
-# RavenOS PI5 — set nginx routing for "/" based on wizard-complete state.
+# RatOS PI5 â€” set nginx routing for "/" based on wizard-complete state.
 #
 # Matches the upstream RatOS UX:
-#   - Pre-setup (no marker file)   → "/" redirects to /configure/ (wizard/Wi-Fi)
-#   - Post-setup (marker present)  → "/" serves Mainsail SPA (try_files)
+#   - Pre-setup (no marker file)   â†’ "/" redirects to /configure/ (wizard/Wi-Fi)
+#   - Post-setup (marker present)  â†’ "/" serves Mainsail SPA (try_files)
 #
 # The marker is written by the Configurator at the end of its hardware wizard
 # (see the wizard-complete step). It deliberately lives on printer_data (user
@@ -16,9 +16,9 @@
 
 set -u
 
-STATE_DIR=/var/lib/ravenos
+STATE_DIR=/var/lib/ratos
 CONF="${STATE_DIR}/nginx-mainsail-root.conf"
-MARKER=/home/pi/printer_data/ravenos/wizard-complete
+MARKER=/home/pi/printer_data/ratos/wizard-complete
 mkdir -p "${STATE_DIR}"
 
 if [ -f "${MARKER}" ]; then

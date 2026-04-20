@@ -5,7 +5,7 @@ export RATOS_CONFIGURATOR_DIR=/home/pi/configurator
 export RATOS_CONFIGURATOR_PORT=3000
 
 # Paths that the configurator needs to read/write
-export RATOS_CONFIG_PATH=/home/pi/printer_data/config/RavenOS
+export RATOS_CONFIG_PATH=/home/pi/printer_data/config/RatOS
 export KLIPPER_CONFIG_PATH=/home/pi/printer_data/config
 export KLIPPER_DIR=/home/pi/klipper
 export KLIPPER_VENV=/home/pi/klippy-env

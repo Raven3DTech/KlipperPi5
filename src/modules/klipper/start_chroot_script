@@ -1,6 +1,6 @@
 #!/bin/bash
 # ============================================================
-# RavenOS PI5 — Klipper module install script
+# RatOS PI5 â€” Klipper module install script
 # Runs inside the chroot of the base image during build.
 # ============================================================
 set -ex
@@ -8,10 +8,10 @@ set -ex
 source /common.sh
 install_cleanup_trap
 
-# ── Source module config ─────────────────────────────────────
+# â”€â”€ Source module config â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 # Variables are automatically exported by CustomPiOS
 
-# ── System dependencies ──────────────────────────────────────
+# â”€â”€ System dependencies â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 apt-get update --allow-releaseinfo-change
 apt-get install -y --no-install-recommends \
     python3-pip \
@@ -35,17 +35,17 @@ apt-get install -y --no-install-recommends \
     binutils-arm-none-eabi \
     libusb-1.0-0
 
-# ── Clone Klipper ────────────────────────────────────────────
+# â”€â”€ Clone Klipper â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 sudo -u pi git clone ${KLIPPER_REPO} ${KLIPPER_DIR}
 cd ${KLIPPER_DIR}
 sudo -u pi git checkout ${KLIPPER_BRANCH}
 
-# ── Create Python virtualenv ─────────────────────────────────
+# â”€â”€ Create Python virtualenv â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 sudo -u pi python3 -m virtualenv -p python3 ${KLIPPER_VENV}
 sudo -u pi ${KLIPPER_VENV}/bin/pip install --upgrade pip
 sudo -u pi ${KLIPPER_VENV}/bin/pip install -r ${KLIPPER_DIR}/scripts/klippy-requirements.txt
 
-# ── Create printer_data directory structure ──────────────────
+# â”€â”€ Create printer_data directory structure â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 sudo -u pi mkdir -p \
     /home/pi/printer_data/config \
     /home/pi/printer_data/logs \
@@ -55,20 +55,20 @@ sudo -u pi mkdir -p \
     /home/pi/printer_data/certs \
     /home/pi/printer_data/backup
 
-# ── Copy default printer.cfg ─────────────────────────────────
+# â”€â”€ Copy default printer.cfg â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 sudo -u pi cp /filesystem/home/pi/printer_data/config/printer.cfg \
               /home/pi/printer_data/config/printer.cfg
 
-# ── Install systemd service ──────────────────────────────────
+# â”€â”€ Install systemd service â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 cp /filesystem/etc/systemd/system/klipper.service /etc/systemd/system/klipper.service
 
 systemctl_if_exists enable klipper
 
-# ── Serial / USB permissions ─────────────────────────────────
+# â”€â”€ Serial / USB permissions â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 usermod -a -G tty,dialout,plugdev pi
 
-# ── udev rules for DFU / STM32 flashing ─────────────────────
-cat > /etc/udev/rules.d/49-ravenos.rules << 'EOF'
+# â”€â”€ udev rules for DFU / STM32 flashing â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+cat > /etc/udev/rules.d/49-ratos.rules << 'EOF'
 # STM32 DFU
 SUBSYSTEMS=="usb", ATTRS{idVendor}=="0483", ATTRS{idProduct}=="df11", MODE="0666", GROUP="plugdev"
 # RP2040 (Raspberry Pi Pico)
@@ -77,4 +77,4 @@ SUBSYSTEMS=="usb", ATTRS{idVendor}=="2e8a", ATTRS{idProduct}=="0003", MODE="0666
 SUBSYSTEMS=="usb-serial", MODE="0660", GROUP="dialout"
 EOF
 
-echo "✅ Klipper module installed"
+echo "âœ… Klipper module installed"

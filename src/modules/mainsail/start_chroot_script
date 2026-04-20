@@ -1,6 +1,6 @@
 #!/bin/bash
 # ============================================================
-# RavenOS PI5 — Mainsail module install script
+# RatOS PI5 â€” Mainsail module install script
 # ============================================================
 set -ex
 
@@ -9,7 +9,7 @@ install_cleanup_trap
 
 # Variables are automatically exported by CustomPiOS
 
-# ── System dependencies ──────────────────────────────────────
+# â”€â”€ System dependencies â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 apt-get update --allow-releaseinfo-change
 apt-get install -y --no-install-recommends \
     nginx \
@@ -17,7 +17,7 @@ apt-get install -y --no-install-recommends \
     curl \
     wget
 
-# ── Download latest Mainsail release ─────────────────────────
+# â”€â”€ Download latest Mainsail release â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 MAINSAIL_RELEASE_URL=$(curl -sI \
     https://github.com/mainsail-crew/mainsail/releases/latest \
     | grep -i '^location:' \
@@ -36,22 +36,22 @@ mkdir -p ${MAINSAIL_WEBROOT}
 unzip -q /tmp/mainsail.zip -d ${MAINSAIL_WEBROOT}
 rm /tmp/mainsail.zip
 
-# ── Also keep a copy in pi home for update_manager tracking ──
+# â”€â”€ Also keep a copy in pi home for update_manager tracking â”€â”€
 sudo -u pi mkdir -p ${MAINSAIL_DIR}
 sudo -u pi cp -r ${MAINSAIL_WEBROOT}/. ${MAINSAIL_DIR}/
 
-# ── Symlink so nginx serves from the tracked directory ────────
+# â”€â”€ Symlink so nginx serves from the tracked directory â”€â”€â”€â”€â”€â”€â”€â”€
 rm -rf ${MAINSAIL_WEBROOT}
 ln -s ${MAINSAIL_DIR} ${MAINSAIL_WEBROOT}
 
-# ── Mainsail config.json — Moonraker via nginx on same host (:80) ─
-# Hard-coding hostname:7125 breaks when the UI is opened at http://<IP>/ (cross-origin → Moonraker 401/CORS; UI can show 500).
+# â”€â”€ Mainsail config.json â€” Moonraker via nginx on same host (:80) â”€
+# Hard-coding hostname:7125 breaks when the UI is opened at http://<IP>/ (cross-origin â†’ Moonraker 401/CORS; UI can show 500).
 cat > ${MAINSAIL_DIR}/config.json << 'EOF'
 {
     "instancesDB": "moonraker",
     "instances": [
         {
-            "name": "RavenOS",
+            "name": "RatOS",
             "hostname": "",
             "port": 80,
             "path": "/"
@@ -68,25 +68,25 @@ cat > ${MAINSAIL_DIR}/config.json << 'EOF'
 }
 EOF
 
-# ── nginx config ─────────────────────────────────────────────
+# â”€â”€ nginx config â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 cp /filesystem/etc/nginx/sites-available/mainsail \
    /etc/nginx/sites-available/mainsail
 
 rm -f /etc/nginx/sites-enabled/default
 ln -sf /etc/nginx/sites-available/mainsail /etc/nginx/sites-enabled/mainsail
 
-# Lay down filesystem/root (helper script, NM dispatcher, nginx drop-in) — same pattern as hotspot.
+# Lay down filesystem/root (helper script, NM dispatcher, nginx drop-in) â€” same pattern as hotspot.
 unpack /filesystem/root /
 
-# ── Root URL: Ethernet → Mainsail, no cable → Configurator ───
-mkdir -p /var/lib/ravenos
-chmod +x /usr/local/bin/ravenos-update-nginx-root.sh
-/usr/local/bin/ravenos-update-nginx-root.sh
+# â”€â”€ Root URL: Ethernet â†’ Mainsail, no cable â†’ Configurator â”€â”€â”€
+mkdir -p /var/lib/ratos
+chmod +x /usr/local/bin/ratos-update-nginx-root.sh
+/usr/local/bin/ratos-update-nginx-root.sh
 systemctl daemon-reload || true
 
-# ── Verify nginx config ───────────────────────────────────────
+# â”€â”€ Verify nginx config â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 nginx -t
 
 systemctl_if_exists enable nginx
 
-echo "✅ Mainsail module installed — version ${MAINSAIL_VERSION}"
+echo "âœ… Mainsail module installed â€” version ${MAINSAIL_VERSION}"

@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# moonraker-timelapse (RavenOS PI5)
+# moonraker-timelapse (RatOS PI5)
 [ -n "$TIMELAPSE_REPO" ] || TIMELAPSE_REPO="https://github.com/mainsail-crew/moonraker-timelapse.git"
 [ -n "$TIMELAPSE_BRANCH" ] || TIMELAPSE_BRANCH="main"
 [ -n "$TIMELAPSE_SRC_DIR" ] || TIMELAPSE_SRC_DIR="/home/${BASE_USER}/moonraker-timelapse"

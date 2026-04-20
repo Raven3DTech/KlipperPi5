@@ -1,14 +1,14 @@
-# RavenOS PI5
+# RatOS PI5
 
-**RavenOS PI5** is a **Raspberry Pi OS Lite arm64** image that ships the **RatOS v2.1.x–class** printer stack (Klipper, Moonraker, Mainsail, configurator, hotspot). It is **not** the upstream RatOS image. This repository’s **image build scripts and CustomPiOS modules** are **GPL-3.0** (see **LICENSE**). Bundled upstream projects keep their own licenses: [Klipper](https://github.com/Klipper3d/klipper), [Moonraker](https://github.com/Arksine/moonraker), [Mainsail](https://github.com/mainsail-crew/mainsail), and **RatOS** lineage with the configurator maintained as **[RavenOS fork of RatOS-configurator](https://github.com/Raven3DTech/RatOS-configurator)** (wizard UI and `configuration/` tree under `~/printer_data/config/RavenOS`; upstream [Rat-OS/RatOS-configurator](https://github.com/Rat-OS/RatOS-configurator)). **RatOS** and **RatRig** remain the upstream source of truth for printer configuration patterns; RavenOS exists to run that ecosystem on **official Raspberry Pi** hardware with Pi‑5 / Bookworm adjustments documented in **BUILD.md**.
+**RatOS PI5** is a **Raspberry Pi OS Lite arm64** image that ships the **RatOS v2.1.xâ€“class** printer stack (Klipper, Moonraker, Mainsail, configurator, hotspot). It is **not** the upstream RatOS image. This repositoryâ€™s **image build scripts and CustomPiOS modules** are **GPL-3.0** (see **LICENSE**). Bundled upstream projects keep their own licenses: [Klipper](https://github.com/Klipper3d/klipper), [Moonraker](https://github.com/Arksine/moonraker), [Mainsail](https://github.com/mainsail-crew/mainsail), and **RatOS** lineage with the configurator maintained as **[RatOS fork of RatOS-configurator](https://github.com/Raven3DTech/RatOS-configurator)** (wizard UI and `configuration/` tree under `~/printer_data/config/RatOS`; upstream [Rat-OS/RatOS-configurator](https://github.com/Rat-OS/RatOS-configurator)). **RatOS** and **RatRig** remain the upstream source of truth for printer configuration patterns; RatOS exists to run that ecosystem on **official Raspberry Pi** hardware with Piâ€‘5 / Bookworm adjustments documented in **BUILD.md**.
 
 Built with **CustomPiOS**.
 
 Includes:
-- **Klipper** — 3D printer firmware
-- **Moonraker** — Klipper API server
-- **Mainsail** — Web UI for Klipper
-- **RavenOS Configurator** — board configuration, flashing and provisioning wizard (from **[our RatOS-configurator fork](https://github.com/Raven3DTech/RatOS-configurator)**; upstream [Rat-OS/RatOS-configurator](https://github.com/Rat-OS/RatOS-configurator))
+- **Klipper** â€” 3D printer firmware
+- **Moonraker** â€” Klipper API server
+- **Mainsail** â€” Web UI for Klipper
+- **RatOS Configurator** â€” board configuration, flashing and provisioning wizard (from **[our RatOS-configurator fork](https://github.com/Raven3DTech/RatOS-configurator)**; upstream [Rat-OS/RatOS-configurator](https://github.com/Rat-OS/RatOS-configurator))
 
 Targets **Raspberry Pi 5** running **Bookworm 64-bit**, but is compatible with Pi 4 as well.
 
@@ -51,7 +51,7 @@ cd RAVENOS-PI5/src/image
 wget -c https://downloads.raspberrypi.org/raspios_lite_arm64_latest -O raspios_lite_arm64_latest.img.xz
 ```
 
-> **Note:** Use the Bookworm Lite 64-bit image for Pi 5. For Pi 4, use the same image — it is compatible.
+> **Note:** Use the Bookworm Lite 64-bit image for Pi 5. For Pi 4, use the same image â€” it is compatible.
 
 ### 3. Update CustomPiOS paths
 
@@ -91,15 +91,15 @@ sync
 RatOS ships **Klipper, Moonraker, Mainsail, and the Configurator** enabled together on boot. Klipper may show errors until a board is configured; **Moonraker is still expected to be running** so Mainsail and most Configurator API calls work. The documented *user* order is network first, then updates in Mainsail, then the rest of the hardware wizard.
 
 1. Insert the SD card / NVMe into your Pi 5 and power on.
-2. **Wi‑Fi only (no Ethernet cable on `end0`/`eth0`):** opening **`http://ravenos.local/`** (or the hotspot **`http://192.168.50.1/`**) **redirects to the Configurator** at **`/configure/`** for Wi‑Fi and hostname setup. You can still open Mainsail assets directly (e.g. **`/index.html`**) if needed.  
-   **Ethernet plugged in:** **`http://ravenos.local/`** goes **straight to Mainsail**; use **`http://ravenos.local/configure`** when you want the Configurator (hostname may become **`ravenos-XXXX`** after first boot — check console or router).
+2. **Wiâ€‘Fi only (no Ethernet cable on `end0`/`eth0`):** opening **`http://ratos.local/`** (or the hotspot **`http://192.168.50.1/`**) **redirects to the Configurator** at **`/configure/`** for Wiâ€‘Fi and hostname setup. You can still open Mainsail assets directly (e.g. **`/index.html`**) if needed.  
+   **Ethernet plugged in:** **`http://ratos.local/`** goes **straight to Mainsail**; use **`http://ratos.local/configure`** when you want the Configurator (hostname may become **`ratos-XXXX`** after first boot â€” check console or router).
 3. Complete that first wizard step; upstream then has you **reboot** onto your LAN before continuing.
-4. Open **Mainsail** at **`http://<hostname>.local`** or **`http://<hostname>.local/config`** (port 80; `/config` redirects to `/`, matching RatOS install docs). Use **Update Manager** to refresh RatOS-related components before advancing the wizard (see upstream “Do NOT continue … before updating the software!”).
+4. Open **Mainsail** at **`http://<hostname>.local`** or **`http://<hostname>.local/config`** (port 80; `/config` redirects to `/`, matching RatOS install docs). Use **Update Manager** to refresh RatOS-related components before advancing the wizard (see upstream â€œDo NOT continue â€¦ before updating the software!â€).
 5. Open **Configurator** again (sidebar link or **`http://<hostname>.local/configure`**) and continue through **board detection / flash** and the hardware wizard.
 
 **How it is served:** nginx on port **80** reverse-proxies **`/configure/*`** to Next.js on **127.0.0.1:3000** (RatOS-configurator **`basePath: '/configure'`**). You can still open **`http://<host>:3000/configure`** directly if nginx is down.
 
-**Fallback hotspot:** **`http://192.168.50.1/`** — redirects to Configurator when no Ethernet link; **`http://192.168.50.1/configure`** — Configurator directly.
+**Fallback hotspot:** **`http://192.168.50.1/`** â€” redirects to Configurator when no Ethernet link; **`http://192.168.50.1/configure`** â€” Configurator directly.
 
 ---
 
@@ -107,11 +107,11 @@ RatOS ships **Klipper, Moonraker, Mainsail, and the Configurator** enabled toget
 
 | Item | Value |
 |---|---|
-| Hostname | `ravenos.local` (may become `ravenos-XXXX.local` after first boot) |
+| Hostname | `ratos.local` (may become `ratos-XXXX.local` after first boot) |
 | SSH user | `pi` |
 | SSH password | `raspberry` *(change on first login)* |
-| Mainsail URL | `http://ravenos.local` (only when a wired Ethernet link is up; otherwise `/` opens Configurator) |
-| Configurator URL | `http://ravenos.local/configure` (direct Next: `:3000/configure`) |
+| Mainsail URL | `http://ratos.local` (only when a wired Ethernet link is up; otherwise `/` opens Configurator) |
+| Configurator URL | `http://ratos.local/configure` (direct Next: `:3000/configure`) |
 
 ---
 
@@ -119,14 +119,14 @@ RatOS ships **Klipper, Moonraker, Mainsail, and the Configurator** enabled toget
 
 ```
 Browser
-  └── http://ravenos.local              → Mainsail when Ethernet (end0/eth0) has carrier; else 302 → /configure/
-  └── http://ravenos.local/configure    → RavenOS Configurator (nginx → Next.js :3000, `basePath` /configure)
+  â””â”€â”€ http://ratos.local              â†’ Mainsail when Ethernet (end0/eth0) has carrier; else 302 â†’ /configure/
+  â””â”€â”€ http://ratos.local/configure    â†’ RatOS Configurator (nginx â†’ Next.js :3000, `basePath` /configure)
 
-Mainsail  ──────────────────────────► Moonraker API (:7125)
-Configurator (browser) ─────────────► Moonraker via nginx :80 (/server, /api, …) → :7125
-Configurator (Node server) ─────────► Moonraker loopback :7125 (MOONRAKER_API_URL)
-                                       └──► Klipper (unix socket)
-                                       └──► Board flash scripts (sudo)
+Mainsail  â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â–º Moonraker API (:7125)
+Configurator (browser) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â–º Moonraker via nginx :80 (/server, /api, â€¦) â†’ :7125
+Configurator (Node server) â”€â”€â”€â”€â”€â”€â”€â”€â”€â–º Moonraker loopback :7125 (MOONRAKER_API_URL)
+                                       â””â”€â”€â–º Klipper (unix socket)
+                                       â””â”€â”€â–º Board flash scripts (sudo)
 ```
 
 ---
@@ -134,7 +134,7 @@ Configurator (Node server) ─────────► Moonraker loopback :71
 ## Updating Components
 
 Each component can be updated independently via Moonraker's update manager
-(built into Mainsail under **Settings → Update Manager**).
+(built into Mainsail under **Settings â†’ Update Manager**).
 
 ---
 
@@ -143,12 +143,12 @@ Each component can be updated independently via Moonraker's update manager
 | Module | Source |
 |---|---|
 | network-support | WiFi firmware + WPA tools (NM from base Pi OS; ModemManager masked on first boot) |
-| hotspot | [RatOS v2.1.x hotspot](https://github.com/Rat-OS/RatOS/tree/v2.1.x/src/modules/hotspot) — autohotspot / hostapd / dnsmasq (see **BUILD.md**) |
+| hotspot | [RatOS v2.1.x hotspot](https://github.com/Rat-OS/RatOS/tree/v2.1.x/src/modules/hotspot) â€” autohotspot / hostapd / dnsmasq (see **BUILD.md**) |
 | Klipper | https://github.com/Klipper3d/klipper |
 | Moonraker | https://github.com/Arksine/moonraker |
 | Mainsail | https://github.com/mainsail-crew/mainsail |
 | Configurator | https://github.com/Raven3DTech/RatOS-configurator (fork; upstream Rat-OS) |
-| ratos-configuration (module) | Fills `~/printer_data/config/RavenOS` from [fork `configuration/`](https://github.com/Raven3DTech/RatOS-configurator/tree/v2.1.x/configuration/) @ `v2.1.x` (legacy [RatOS-configuration](https://github.com/Rat-OS/RatOS-configuration) repo is upstream-deprecated) |
+| ratos-configuration (module) | Fills `~/printer_data/config/RatOS` from [fork `configuration/`](https://github.com/Raven3DTech/RatOS-configurator/tree/v2.1.x/configuration/) @ `v2.1.x` (legacy [RatOS-configuration](https://github.com/Rat-OS/RatOS-configuration) repo is upstream-deprecated) |
 | Crowsnest | https://github.com/mainsail-crew/crowsnest |
 | Sonar | https://github.com/mainsail-crew/sonar |
 | moonraker-timelapse | https://github.com/mainsail-crew/moonraker-timelapse |
@@ -159,6 +159,6 @@ Each component can be updated independently via Moonraker's update manager
 
 ## License
 
-**RavenOS PI5** (this repository: CustomPiOS modules, scripts, and image integration) is licensed under the **GNU General Public License v3.0** — see the **`LICENSE`** file in the repo root.
+**RatOS PI5** (this repository: CustomPiOS modules, scripts, and image integration) is licensed under the **GNU General Public License v3.0** â€” see the **`LICENSE`** file in the repo root.
 
 Third-party components installed into the image (Klipper, Moonraker, Mainsail, RatOS-configurator, Raspberry Pi OS base, etc.) remain under **their upstream licenses**. GPLv3 applies to **our** build and packaging work; combining it with other software in an image does not remove those upstream terms.

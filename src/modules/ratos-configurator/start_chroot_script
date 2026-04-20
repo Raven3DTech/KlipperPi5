@@ -1,6 +1,6 @@
 #!/bin/bash
 # ============================================================
-# RavenOS PI5 — Configurator module (clone Raven3DTech/RatOS-configurator fork → ~/configurator; branch v2.1.x)
+# RatOS PI5 â€” Configurator module (clone Raven3DTech/RatOS-configurator fork â†’ ~/configurator; branch v2.1.x)
 # ============================================================
 set -ex
 
@@ -9,7 +9,7 @@ install_cleanup_trap
 
 # Variables are automatically exported by CustomPiOS
 
-# ── Node.js 20 LTS ───────────────────────────────────────────
+# â”€â”€ Node.js 20 LTS â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 curl -fsSL https://deb.nodesource.com/setup_20.x | bash -
 apt-get install -y --no-install-recommends \
     nodejs \
@@ -21,7 +21,7 @@ apt-get install -y --no-install-recommends \
 node --version
 npm --version
 
-# ── Clone Configurator ───────────────────────────────────────
+# â”€â”€ Clone Configurator â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 sudo -u pi git clone \
     ${RATOS_CONFIGURATOR_REPO} \
     ${RATOS_CONFIGURATOR_DIR}
@@ -32,48 +32,48 @@ sudo -u pi git checkout ${RATOS_CONFIGURATOR_BRANCH}
 # Browser tab / metadata title (upstream says "RatOS Configurator")
 LAYOUT="${RATOS_CONFIGURATOR_DIR}/src/app/layout.tsx"
 if [[ -f "${LAYOUT}" ]]; then
-    sudo -u pi sed -i "s/RatOS Configurator/RavenOS Configurator/g" "${LAYOUT}"
+    sudo -u pi sed -i "s/RatOS Configurator/RatOS Configurator/g" "${LAYOUT}"
 fi
 
-# ── RavenOS favicon + top-bar logo (module filesystem → Next app/public) ─
+# â”€â”€ RatOS favicon + top-bar logo (module filesystem â†’ Next app/public) â”€
 if [[ -f /filesystem/branding/favicon-32x32.png ]]; then
     sudo -u pi cp /filesystem/branding/favicon-32x32.png "${RATOS_CONFIGURATOR_DIR}/src/app/icon.png"
     sudo -u pi rm -f "${RATOS_CONFIGURATOR_DIR}/src/app/icon.svg"
 fi
-if [[ -f /filesystem/branding/ravenos-logo.png ]]; then
-    sudo -u pi cp /filesystem/branding/ravenos-logo.png "${RATOS_CONFIGURATOR_DIR}/src/public/ravenos-logo.png"
+if [[ -f /filesystem/branding/ratos-logo.png ]]; then
+    sudo -u pi cp /filesystem/branding/ratos-logo.png "${RATOS_CONFIGURATOR_DIR}/src/public/ratos-logo.png"
     for f in topmenu.tsx template.tsx; do
         APPF="${RATOS_CONFIGURATOR_DIR}/src/app/${f}"
         if [[ -f "${APPF}" ]]; then
-            sudo -u pi sed -i "s|@/public/logo-white\\.svg|@/public/ravenos-logo.png|g" "${APPF}"
+            sudo -u pi sed -i "s|@/public/logo-white\\.svg|@/public/ratos-logo.png|g" "${APPF}"
         fi
     done
 fi
 
-# ── Fix hardcoded paths that assume Raspberry Pi OS defaults ─
+# â”€â”€ Fix hardcoded paths that assume Raspberry Pi OS defaults â”€
 # The configurator has bash scripts that hardcode /home/pi.
 # Since we use BASE_USER=pi this is fine, but we patch any
 # remaining hardcoded strings for robustness.
 find ${RATOS_CONFIGURATOR_DIR}/scripts -name "*.sh" \
     -exec sed -i 's|/home/pi|/home/pi|g' {} \; 2>/dev/null || true
 
-# ── Create RatOS config subdirectory ─────────────────────────
+# â”€â”€ Create RatOS config subdirectory â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 sudo -u pi mkdir -p ${RATOS_CONFIG_PATH}
 
-# ── Write .env.local ─────────────────────────────────────────
+# â”€â”€ Write .env.local â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 # Move the environment file to the actual Next.js app directory (src)
 cp /filesystem/home/pi/configurator/.env.local \
    ${RATOS_CONFIGURATOR_DIR}/src/.env.local
 chown pi:pi ${RATOS_CONFIGURATOR_DIR}/src/.env.local
 
-# ── Wi-Fi setup (Bookworm): NM needs nmcli; upstream only wrote wpa_supplicant.conf ─
+# â”€â”€ Wi-Fi setup (Bookworm): NM needs nmcli; upstream only wrote wpa_supplicant.conf â”€
 cp /filesystem/home/pi/configurator-patches/add-wifi-network.sh \
    ${RATOS_CONFIGURATOR_DIR}/src/scripts/add-wifi-network.sh
 chmod 755 ${RATOS_CONFIGURATOR_DIR}/src/scripts/add-wifi-network.sh
 chown pi:pi ${RATOS_CONFIGURATOR_DIR}/src/scripts/add-wifi-network.sh
 
-# ── Offline-safe fonts (Next.js build in chroot/CI) ───────────
-# next/font/google fetches from fonts.gstatic.com at build time — often ETIMEDOUT under qemu chroot.
+# â”€â”€ Offline-safe fonts (Next.js build in chroot/CI) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+# next/font/google fetches from fonts.gstatic.com at build time â€” often ETIMEDOUT under qemu chroot.
 # Use next/font/local + a system TTF copied into the repo.
 sudo -u pi mkdir -p "${RATOS_CONFIGURATOR_DIR}/src/fonts"
 FONTPATH=$(dpkg -L fonts-inter 2>/dev/null | grep -E '/Inter-Regular\.ttf$' | head -n1)
@@ -85,7 +85,7 @@ sudo -u pi cp -f "${FONTPATH}" "${RATOS_CONFIGURATOR_DIR}/src/fonts/inter.ttf"
 sudo -u pi tee "${RATOS_CONFIGURATOR_DIR}/src/app/fonts.tsx" >/dev/null <<'FONTSEOF'
 import localFont from 'next/font/local';
 
-// RavenOS PI5: avoid next/font/google (network at build time). Inter TTF from fonts-inter (or DejaVu fallback).
+// RatOS PI5: avoid next/font/google (network at build time). Inter TTF from fonts-inter (or DejaVu fallback).
 export const inter = localFont({
   src: '../fonts/inter.ttf',
   variable: '--inter-font',
@@ -93,9 +93,9 @@ export const inter = localFont({
 });
 FONTSEOF
 
-# ── Next.js behind nginx: stop slash / Location redirect loops ─
+# â”€â”€ Next.js behind nginx: stop slash / Location redirect loops â”€
 # - trailingSlash + skipTrailingSlashRedirect (top-level; not under experimental in Next 14+).
-# - Remove stock headers() COOP/COEP (require-corp) — causes client-side exceptions behind nginx/LAN.
+# - Remove stock headers() COOP/COEP (require-corp) â€” causes client-side exceptions behind nginx/LAN.
 sudo -u pi python3 <<PY
 from pathlib import Path
 import re
@@ -143,14 +143,14 @@ if "Cross-Origin-Embedder-Policy" in t or "headers: async" in t:
 p.write_text(t, encoding="utf-8")
 PY
 
-# ── Install pnpm and dependencies ────────────────────────────
+# â”€â”€ Install pnpm and dependencies â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 npm install -g pnpm
 cd ${RATOS_CONFIGURATOR_DIR}/src
 sudo -u pi pnpm install
 
-# ── Upstream hardening (v2.1.x): empty printer list / tRPC 500s ─────────────
-# - printer.printers sorts with b.description.indexOf — missing description throws.
-# - getBoards() throws if any board-definition.json fails Zod parse — breaks getPrinters().
+# â”€â”€ Upstream hardening (v2.1.x): empty printer list / tRPC 500s â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+# - printer.printers sorts with b.description.indexOf â€” missing description throws.
+# - getBoards() throws if any board-definition.json fails Zod parse â€” breaks getPrinters().
 sudo -u pi python3 - "${RATOS_CONFIGURATOR_DIR}" <<'PATCHPY'
 from pathlib import Path
 import sys
@@ -200,36 +200,36 @@ PATCHPY
 # Match project Prettier (heredoc fonts.tsx + patched routers can otherwise fail ESLint during `next build`).
 sudo -u pi bash -lc "cd ${RATOS_CONFIGURATOR_DIR}/src && pnpm exec prettier --write app/fonts.tsx app/topmenu.tsx app/template.tsx server/routers/printer.ts server/routers/mcu.ts"
 
-# ── Build the Next.js production app ─────────────────────────
+# â”€â”€ Build the Next.js production app â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 # CI runners are memory-tight; cap Node heap explicitly to reduce OOM during Next build.
 sudo -u pi env NODE_OPTIONS="--max-old-space-size=4096" pnpm run build
 
-# ── OS release (Configurator tRPC osVersion: statSync('/etc/ratos-release') throws if missing → HTTP 500) ─
+# â”€â”€ OS release (Configurator tRPC osVersion: statSync('/etc/ratos-release') throws if missing â†’ HTTP 500) â”€
 cp /filesystem/etc/ratos-release /etc/ratos-release
 chmod 644 /etc/ratos-release
 
-# ── Sudo rules so configurator can flash boards ───────────────
-cp /filesystem/etc/sudoers.d/ravenos-flash \
-   /etc/sudoers.d/ravenos-flash
-chmod 440 /etc/sudoers.d/ravenos-flash
-visudo -c -f /etc/sudoers.d/ravenos-flash
+# â”€â”€ Sudo rules so configurator can flash boards â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+cp /filesystem/etc/sudoers.d/ratos-flash \
+   /etc/sudoers.d/ratos-flash
+chmod 440 /etc/sudoers.d/ratos-flash
+visudo -c -f /etc/sudoers.d/ratos-flash
 
-# ── Scripts directory ─────────────────────────────────────────
+# â”€â”€ Scripts directory â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 sudo -u pi mkdir -p /home/pi/scripts
-cp /filesystem/home/pi/scripts/ravenos-firstboot.sh \
-   /home/pi/scripts/ravenos-firstboot.sh
-chmod +x /home/pi/scripts/ravenos-firstboot.sh
-chown pi:pi /home/pi/scripts/ravenos-firstboot.sh
+cp /filesystem/home/pi/scripts/ratos-firstboot.sh \
+   /home/pi/scripts/ratos-firstboot.sh
+chmod +x /home/pi/scripts/ratos-firstboot.sh
+chown pi:pi /home/pi/scripts/ratos-firstboot.sh
 
-# ── systemd services ──────────────────────────────────────────
-cp /filesystem/etc/systemd/system/ravenos-configurator.service \
-   /etc/systemd/system/ravenos-configurator.service
+# â”€â”€ systemd services â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+cp /filesystem/etc/systemd/system/ratos-configurator.service \
+   /etc/systemd/system/ratos-configurator.service
 
-cp /filesystem/etc/systemd/system/ravenos-firstboot.service \
-   /etc/systemd/system/ravenos-firstboot.service
+cp /filesystem/etc/systemd/system/ratos-firstboot.service \
+   /etc/systemd/system/ratos-firstboot.service
 
-systemctl_if_exists enable ravenos-configurator
-systemctl_if_exists enable ravenos-firstboot
+systemctl_if_exists enable ratos-configurator
+systemctl_if_exists enable ratos-firstboot
 systemctl_if_exists enable avahi-daemon
 
-echo "✅ Configurator module installed"
+echo "âœ… Configurator module installed"

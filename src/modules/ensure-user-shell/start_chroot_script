@@ -1,6 +1,6 @@
 #!/bin/bash
 # ============================================================
-# RavenOS PI5 — ensure-user-shell
+# RatOS PI5 â€” ensure-user-shell
 # Raspberry Pi OS images may ship the default user with /usr/sbin/nologin.
 # SSH then accepts the password but prints "This account is currently not available."
 # Fix the passwd entry inside the chroot so out-of-box SSH matches RatOS expectations.
@@ -12,7 +12,7 @@ install_cleanup_trap
 
 U="${BASE_USER:-pi}"
 if id -u "${U}" >/dev/null 2>&1; then
-  echo_green "Setting login shell for ${U} → /bin/bash"
+  echo_green "Setting login shell for ${U} â†’ /bin/bash"
   usermod -s /bin/bash "${U}"
   getent passwd "${U}" || true
 else

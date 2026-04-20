@@ -1,10 +1,10 @@
 # ============================================================
-# RavenOS PI5 — nginx site config for Mainsail
+# RatOS PI5 â€” nginx site config for Mainsail
 # Serves Mainsail on port 80.
-# Proxies /configure/* to RavenOS Configurator (Next.js on :3000), same URL
+# Proxies /configure/* to RatOS Configurator (Next.js on :3000), same URL
 # pattern as stock RatOS (http://<host>/configure).
 # Proxies /websocket, /api, /access, /machine to Moonraker.
-# Redirects /config → / to match RatOS install docs (Mainsail entry URL).
+# Redirects /config â†’ / to match RatOS install docs (Mainsail entry URL).
 # ============================================================
 
 map $http_upgrade $connection_upgrade {
@@ -16,7 +16,7 @@ upstream moonraker {
     server 127.0.0.1:7125;
 }
 
-upstream ravenos_configurator {
+upstream ratos_configurator {
     server 127.0.0.1:3000;
 }
 
@@ -24,13 +24,13 @@ server {
     listen 80 default_server;
     listen [::]:80 default_server;
 
-    server_name ravenos.local _;
+    server_name ratos.local _;
 
     access_log /var/log/nginx/mainsail-access.log;
     error_log  /var/log/nginx/mainsail-error.log;
 
-    # ── Captive portal / OS connectivity probes ───────────────
-    # Phones open these when the AP has “no internet”; without a clean answer
+    # â”€â”€ Captive portal / OS connectivity probes â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+    # Phones open these when the AP has â€œno internetâ€; without a clean answer
     # they may show a generic sign-in page or the wrong app instead of Mainsail.
     location = /generate_204 { return 302 /; }
     location = /gen_204 { return 302 /; }
@@ -39,14 +39,14 @@ server {
     location = /connecttest.txt { return 302 /; }
     location = /ncsi.txt { return 302 /; }
 
-    # ── RavenOS Configurator (Next.js basePath /configure) ─────────
+    # â”€â”€ RatOS Configurator (Next.js basePath /configure) â”€â”€â”€â”€â”€â”€â”€â”€â”€
     # Same entry URL as stock RatOS: http://<host>/configure
     location = /configure {
         return 308 $scheme://$http_host/configure/;
     }
 
     location ^~ /configure/ {
-        proxy_pass         http://ravenos_configurator;
+        proxy_pass         http://ratos_configurator;
         proxy_http_version 1.1;
         proxy_set_header   Host               $host;
         proxy_set_header   X-Real-IP          $remote_addr;
@@ -57,7 +57,7 @@ server {
         proxy_read_timeout   86400;
     }
 
-    # RatOS docs link Mainsail at http://<host>/config — we serve UI at /
+    # RatOS docs link Mainsail at http://<host>/config â€” we serve UI at /
     location = /config {
         return 302 /;
     }
@@ -65,15 +65,15 @@ server {
         return 302 /;
     }
 
-    # ── Mainsail web app ──────────────────────────────────────
+    # â”€â”€ Mainsail web app â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
     root /var/www/mainsail;
     index index.html;
 
-    # "/" routing: Ethernet plugged (end0/eth0 carrier) → Mainsail; else → /configure/
-    # Fragment: /var/lib/ravenos/nginx-mainsail-root.conf (updated at nginx start + NM events).
-    include /var/lib/ravenos/nginx-mainsail-root.conf;
+    # "/" routing: Ethernet plugged (end0/eth0 carrier) â†’ Mainsail; else â†’ /configure/
+    # Fragment: /var/lib/ratos/nginx-mainsail-root.conf (updated at nginx start + NM events).
+    include /var/lib/ratos/nginx-mainsail-root.conf;
 
-    # ── Moonraker WebSocket ───────────────────────────────────
+    # â”€â”€ Moonraker WebSocket â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
     location /websocket {
         proxy_pass         http://moonraker;
         proxy_http_version 1.1;
@@ -83,7 +83,7 @@ server {
         proxy_read_timeout 86400;
     }
 
-    # ── Moonraker REST API ────────────────────────────────────
+    # â”€â”€ Moonraker REST API â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
     location ~ ^/(api|access|machine|server|printer)(/.*)?$ {
         proxy_pass         http://moonraker;
         proxy_http_version 1.1;
@@ -92,7 +92,7 @@ server {
         proxy_set_header   Host       $host;
     }
 
-    # ── Webcam stream passthrough (mjpeg-streamer) ────────────
+    # â”€â”€ Webcam stream passthrough (mjpeg-streamer) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
     location /webcam {
         proxy_pass http://127.0.0.1:8080/stream;
     }
@@ -101,10 +101,10 @@ server {
         proxy_pass http://127.0.0.1:8081/stream;
     }
 
-    # ── File uploads (large gcode files) ─────────────────────
+    # â”€â”€ File uploads (large gcode files) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
     client_max_body_size 1G;
 
-    # ── Gzip compression ──────────────────────────────────────
+    # â”€â”€ Gzip compression â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
     gzip on;
     gzip_vary on;
     gzip_proxied any;

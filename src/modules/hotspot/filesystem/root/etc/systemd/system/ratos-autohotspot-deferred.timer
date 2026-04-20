@@ -1,0 +1,10 @@
+[Unit]
+Description=RatOS PI5 â€” delayed autohotspot retry (Wi-Fi scan readiness)
+
+[Timer]
+OnBootSec=90s
+AccuracySec=10s
+Unit=ratos-autohotspot-deferred.service
+
+[Install]
+WantedBy=timers.target

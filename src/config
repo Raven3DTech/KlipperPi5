@@ -1,10 +1,10 @@
-# RavenOS PI5 — CustomPiOS master config (RatOS v2.1.x–derived stack for Raspberry Pi OS / Pi 5)
+# RatOS PI5 â€” CustomPiOS master config (RatOS v2.1.xâ€“derived stack for Raspberry Pi OS / Pi 5)
 # ------------------------------------
 # Module order matters; each module can depend on the previous.
 # **prebase** runs `apt-get update` before **base** so `userconf-pi` upgrade in `base` does not fail on stale lists.
 # **base** must run next: on modern Raspberry Pi OS there is no default login until `userconf.txt`
 # is written on the boot partition (CustomPiOS `base` module). Without it, SSH shows
-# "valid user has been set up" and `pi` / `raspberry` never work — same out-of-box UX as RatOS.
+# "valid user has been set up" and `pi` / `raspberry` never work â€” same out-of-box UX as RatOS.
 # **ensure-user-shell** runs after base: upstream may leave `pi` on `/usr/sbin/nologin` (SSH then says
 # "This account is currently not available" despite a valid password).
 # klipper must come before moonraker, moonraker before mainsail,
@@ -30,20 +30,20 @@ export BASE_BOOT_MOUNT_PATH="boot"
 # 6000 MiB was enough for Bookworm-only; current Pi OS lite arm64 (trixie) + full module set can hit ENOSPC during pnpm install.
 export BASE_IMAGE_ENLARGEROOT="14000"
 
-# CustomPiOS `modules/base/config` runs `[ -n "$BASE_ZIP_IMG" ] || BASE_ZIP_IMG=$(ls … $BASE_IMAGE_PATH …)`.
+# CustomPiOS `modules/base/config` runs `[ -n "$BASE_ZIP_IMG" ] || BASE_ZIP_IMG=$(ls â€¦ $BASE_IMAGE_PATH â€¦)`.
 # If BASE_ZIP_IMG is unset (e.g. sudo env not forwarded), that ls can return empty and the whole build
-# aborts with "could not find image". Default matches `make download-image` → `src/image/…`.
+# aborts with "could not find image". Default matches `make download-image` â†’ `src/image/â€¦`.
 export BASE_IMAGE_PATH="${DIST_PATH}/image"
 [ -n "$BASE_ZIP_IMG" ] || export BASE_ZIP_IMG="${BASE_IMAGE_PATH}/raspios_lite_arm64_latest.img.xz"
 
 # Distro metadata (CustomPiOS `base` end_chroot writes hostname + /etc/<dist>_version)
-export DIST_NAME="RavenOS-PI5"
+export DIST_NAME="RatOS-PI5"
 export DIST_VERSION="1.0.0"
 
 # Base system settings
 export BASE_USER=pi
 export BASE_USER_PASSWORD=raspberry
-export BASE_HOSTNAME=ravenos
+export BASE_HOSTNAME=ratos
 export BASE_OVERRIDE_HOSTNAME="${BASE_HOSTNAME}"
 
 # Timezone
@@ -60,7 +60,7 @@ export BASE_KEYBOARD_LAYOUT="us"
 # e.g. en_AU.UTF-8 often fails the chroot on GitHub Actions. Defaults leave raspi-config
 # skips; first-boot / manual raspi-config can still apply BASE_* preferences on the Pi.
 
-# Enable SSH on first boot (empty file on boot partition + sshd tweaks — variable is BASE_SSH_ENABLE in CustomPiOS)
+# Enable SSH on first boot (empty file on boot partition + sshd tweaks â€” variable is BASE_SSH_ENABLE in CustomPiOS)
 export BASE_SSH_ENABLE=yes
 
 # Image compression (xz level 6: balance of size vs speed)

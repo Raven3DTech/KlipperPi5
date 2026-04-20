@@ -1,6 +1,6 @@
 #!/bin/bash
 # ============================================================
-# RavenOS PI5 — Moonraker module install script
+# RatOS PI5 â€” Moonraker module install script
 # ============================================================
 set -ex
 
@@ -9,7 +9,7 @@ install_cleanup_trap
 
 # Variables are automatically exported by CustomPiOS
 
-# ── System dependencies ──────────────────────────────────────
+# â”€â”€ System dependencies â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 apt-get update --allow-releaseinfo-change
 apt-get install -y --no-install-recommends \
     python3-virtualenv \
@@ -27,22 +27,22 @@ apt-get install -y --no-install-recommends \
     zlib1g-dev \
     haproxy
 
-# ── Clone Moonraker ──────────────────────────────────────────
+# â”€â”€ Clone Moonraker â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 sudo -u pi git clone ${MOONRAKER_REPO} ${MOONRAKER_DIR}
 cd ${MOONRAKER_DIR}
 sudo -u pi git checkout ${MOONRAKER_BRANCH}
 
-# ── Create Python virtualenv ─────────────────────────────────
+# â”€â”€ Create Python virtualenv â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 sudo -u pi python3 -m virtualenv -p python3 ${MOONRAKER_VENV}
 sudo -u pi ${MOONRAKER_VENV}/bin/pip install --upgrade pip
 sudo -u pi ${MOONRAKER_VENV}/bin/pip install -r ${MOONRAKER_DIR}/scripts/moonraker-requirements.txt
 
-# ── Install moonraker.conf ───────────────────────────────────
+# â”€â”€ Install moonraker.conf â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 cp /filesystem/home/pi/printer_data/config/moonraker.conf \
    /home/pi/printer_data/config/moonraker.conf
 chown pi:pi /home/pi/printer_data/config/moonraker.conf
 
-# ── PolicyKit rules for PackageKit / power actions ───────────
+# â”€â”€ PolicyKit rules for PackageKit / power actions â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 cat > /etc/polkit-1/rules.d/moonraker.rules << 'EOF'
 polkit.addRule(function(action, subject) {
     if ((action.id == "org.freedesktop.systemd1.manage-units" ||
@@ -54,8 +54,8 @@ polkit.addRule(function(action, subject) {
 });
 EOF
 
-# ── Moonraker systemd service ────────────────────────────────
+# â”€â”€ Moonraker systemd service â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 cp /filesystem/etc/systemd/system/moonraker.service /etc/systemd/system/moonraker.service
 systemctl_if_exists enable moonraker
 
-echo "✅ Moonraker module installed"
+echo "âœ… Moonraker module installed"

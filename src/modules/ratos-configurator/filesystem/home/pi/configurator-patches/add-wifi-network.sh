@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# RatOS Configurator — add-wifi-network.sh
+# RatOS Configurator â€” add-wifi-network.sh
 # Upstream writes /etc/wpa_supplicant/wpa_supplicant.conf (needed for autohotspot SSID list).
 # Raspberry Pi OS Bookworm uses NetworkManager: NM does not apply that file by itself, so we
 # also connect via nmcli after tearing down the fallback hotspot (hostapd/dnsmasq).
@@ -16,14 +16,14 @@ COUNTRY="${3:-GB}"
 FREQ="${4:-}"
 HIDDEN="${5:-shown}"
 
-# Do not use `sh -c "wpa_passphrase \"$1\" \"$2\" …"` — special chars in the passphrase break quoting and
-# always fail the `^network` check → Configurator shows "Invalid wifi credentials" for good passwords.
+# Do not use `sh -c "wpa_passphrase \"$1\" \"$2\" â€¦"` â€” special chars in the passphrase break quoting and
+# always fail the `^network` check â†’ Configurator shows "Invalid wifi credentials" for good passwords.
 WPAP_ERR="$(mktemp)"
 set +e
 NETWORK="$(wpa_passphrase "${SSID}" "${PASS}" 2>"${WPAP_ERR}" | sed '/^\s*#psk=\".*\"$/d' | tr -d '\r')"
 set -e
 if [[ -z "${NETWORK}" ]] || ! grep -q '^[[:space:]]*network[[:space:]]*={' <<<"${NETWORK}"; then
-	echo "wpa_passphrase failed (WPA passphrase must be 8–63 chars, or SSID/passphrase has an unsupported character). stderr was:" >&2
+	echo "wpa_passphrase failed (WPA passphrase must be 8â€“63 chars, or SSID/passphrase has an unsupported character). stderr was:" >&2
 	cat "${WPAP_ERR}" >&2 || true
 	rm -f "${WPAP_ERR}"
 	echo "Invalid wifi credentials"
@@ -31,7 +31,7 @@ if [[ -z "${NETWORK}" ]] || ! grep -q '^[[:space:]]*network[[:space:]]*={' <<<"$
 fi
 rm -f "${WPAP_ERR}"
 
-# Optional scan frequency (omit if UI sent empty — bad value corrupts the network block)
+# Optional scan frequency (omit if UI sent empty â€” bad value corrupts the network block)
 if [ -n "${FREQ}" ]; then
 	NETWORK=${NETWORK/"}"/"	scan_freq=${FREQ}
 }"}
@@ -108,14 +108,14 @@ ctrl_interface=DIR=/var/run/wpa_supplicant GROUP=netdev
 update_config=1
 __EOF
 
-# ── RavenOS PI5: NetworkManager (Bookworm) ────────────────────────────
+# â”€â”€ RatOS PI5: NetworkManager (Bookworm) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 # Design:
 #   1. SYNCHRONOUSLY create the NM Wi-Fi profile on disk with autoconnect=yes.
 #      Writing to /etc/NetworkManager/system-connections/ is a local filesystem
-#      op — since wlan0 is currently "unmanaged" (under hostapd for the AP),
+#      op â€” since wlan0 is currently "unmanaged" (under hostapd for the AP),
 #      NM will NOT auto-activate yet. No disruption to the running AP.
 #   2. Disable autohotspot.service so it does not race NM for wlan0 on the
-#      next boot. The periodic AP-guard (ravenos-nm-wlan-ap-guard.timer)
+#      next boot. The periodic AP-guard (ratos-nm-wlan-ap-guard.timer)
 #      still re-invokes /usr/bin/autohotspotN if Wi-Fi later becomes orphaned.
 #   3. Schedule a detached systemd-run unit to do the *live* transition
 #      (stop AP, hand wlan0 to NM, activate the ratos-wifi profile) after a
@@ -125,7 +125,7 @@ __EOF
 # If the user reboots before the deferred job fires: NO HARM. The profile is
 # already on disk, autohotspot is disabled for next boot, so when NM starts
 # it auto-connects to the user's Wi-Fi. Previously this was the ONE thing
-# that caused the "Pi never joined my Wi-Fi" bug — the deferred job used to
+# that caused the "Pi never joined my Wi-Fi" bug â€” the deferred job used to
 # be the *only* thing that created the profile.
 if command -v nmcli >/dev/null 2>&1 && systemctl is-active --quiet NetworkManager 2>/dev/null; then
 	WLAN=$(iw dev 2>/dev/null | awk '$1 == "Interface" { print $2; exit }')
@@ -137,9 +137,9 @@ if command -v nmcli >/dev/null 2>&1 && systemctl is-active --quiet NetworkManage
 	# Safe, non-disruptive prep (does not kill the AP):
 	iw reg set "${COUNTRY}" 2>/dev/null || true
 
-	LOG_FILE="/var/log/ravenos-wifi-apply.log"
+	LOG_FILE="/var/log/ratos-wifi-apply.log"
 
-	# ─── Step 1: create/refresh the NM profile SYNCHRONOUSLY ─────────
+	# â”€â”€â”€ Step 1: create/refresh the NM profile SYNCHRONOUSLY â”€â”€â”€â”€â”€â”€â”€â”€â”€
 	# Delete any stale profile so re-runs don't accumulate duplicates.
 	nmcli connection delete ratos-wifi 2>/dev/null || true
 
@@ -175,19 +175,19 @@ if command -v nmcli >/dev/null 2>&1 && systemctl is-active --quiet NetworkManage
 		exit 1
 	fi
 	rm -f "${LOG_FILE}.err"
-	echo "RavenOS PI5: NM profile 'ratos-wifi' created (autoconnect=yes) at /etc/NetworkManager/system-connections/."
+	echo "RatOS PI5: NM profile 'ratos-wifi' created (autoconnect=yes) at /etc/NetworkManager/system-connections/."
 
-	# ─── Step 2: make sure autohotspot won't race NM on next boot ────
+	# â”€â”€â”€ Step 2: make sure autohotspot won't race NM on next boot â”€â”€â”€â”€
 	# The AP-guard script still calls autohotspotN on demand when wlan is
 	# orphaned, so failure recovery remains intact.
 	systemctl disable autohotspot.service 2>/dev/null || true
 
-	# ─── Step 3: schedule the live transition (best-effort, cancelable by reboot) ──
+	# â”€â”€â”€ Step 3: schedule the live transition (best-effort, cancelable by reboot) â”€â”€
 	if ! command -v systemd-run >/dev/null 2>&1; then
-		echo "systemd-run not available; skipping live transition — reboot to apply."
+		echo "systemd-run not available; skipping live transition â€” reboot to apply."
 		exit 0
 	fi
-	UNIT="ravenos-wifi-apply-$(date +%s%N)"
+	UNIT="ratos-wifi-apply-$(date +%s%N)"
 	systemd-run \
 		--no-block \
 		--quiet \
@@ -196,7 +196,7 @@ if command -v nmcli >/dev/null 2>&1 && systemctl is-active --quiet NetworkManage
 		--setenv=RV_LOG="${LOG_FILE}" \
 		/bin/bash -c '
 			exec >>"${RV_LOG}" 2>&1
-			echo "=== ravenos-wifi-apply $(date -Iseconds) iface=${RV_WLAN} ==="
+			echo "=== ratos-wifi-apply $(date -Iseconds) iface=${RV_WLAN} ==="
 			# After wifi.join returns the UI still needs hostname + reboot
 			# round-trips on the same AP. Give that a generous window.
 			sleep 45
@@ -211,7 +211,7 @@ if command -v nmcli >/dev/null 2>&1 && systemctl is-active --quiet NetworkManage
 			NM_EXIT=$?
 			echo "nmcli up ratos-wifi exit: ${NM_EXIT}"
 			if [ "${NM_EXIT}" -ne 0 ]; then
-				echo "Wi-Fi join failed. Restoring RavenOS hotspot on ${RV_WLAN}..."
+				echo "Wi-Fi join failed. Restoring RatOS hotspot on ${RV_WLAN}..."
 				nmcli device disconnect "${RV_WLAN}" 2>/dev/null || true
 				nmcli device set "${RV_WLAN}" managed no 2>/dev/null || true
 				sleep 2
@@ -226,16 +226,16 @@ if command -v nmcli >/dev/null 2>&1 && systemctl is-active --quiet NetworkManage
 				echo 1 > /proc/sys/net/ipv4/ip_forward 2>/dev/null || true
 				sleep 2
 				if systemctl is-active --quiet hostapd 2>/dev/null; then
-					echo "RavenOS hotspot: UP (reconnect your device to RavenOS and retry)."
+					echo "RatOS hotspot: UP (reconnect your device to RatOS and retry)."
 				else
-					echo "RavenOS hotspot: FAILED to start — check journalctl -u hostapd."
+					echo "RatOS hotspot: FAILED to start â€” check journalctl -u hostapd."
 				fi
 			fi
 			exit "${NM_EXIT}"
 		'
 
-	echo "RavenOS PI5: Wi-Fi apply scheduled via ${UNIT}."
-	echo "Profile already on disk — Pi will auto-join on next boot regardless."
+	echo "RatOS PI5: Wi-Fi apply scheduled via ${UNIT}."
+	echo "Profile already on disk â€” Pi will auto-join on next boot regardless."
 	exit 0
 fi
 

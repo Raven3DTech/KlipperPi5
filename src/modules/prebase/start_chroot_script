@@ -1,6 +1,6 @@
 #!/bin/bash
 # ============================================================
-# RavenOS PI5 — prebase: refresh apt lists before CustomPiOS `base`
+# RatOS PI5 â€” prebase: refresh apt lists before CustomPiOS `base`
 # The `base` module runs `apt-get install --only-upgrade userconf-pi` without
 # its own `apt-get update`; on fresh Pi OS (e.g. trixie) that can fail CI builds.
 # ============================================================
@@ -11,4 +11,4 @@ install_cleanup_trap
 
 apt-get update --allow-releaseinfo-change
 
-echo "✅ prebase: apt lists ready for base module"
+echo "âœ… prebase: apt lists ready for base module"

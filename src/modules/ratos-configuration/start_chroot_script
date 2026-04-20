@@ -32,13 +32,13 @@ rm -rf "${RATOS_CONFIGURATION_PATH}"
 mkdir -p "${RATOS_CONFIGURATION_PATH}"
 cp -a "${TMP_CLONE}/configurator/configuration/." "${RATOS_CONFIGURATION_PATH}/"
 
-# Upstream templates sometimes embed the legacy folder name; normalize to RavenOS on disk.
+# Upstream templates sometimes embed the legacy folder name; normalize to RatOS on disk.
 while IFS= read -r -d '' f; do
     sed -i \
-        -e "s|/home/${BASE_USER}/printer_data/config/RatOS|/home/${BASE_USER}/printer_data/config/RavenOS|g" \
-        -e 's|/home/pi/printer_data/config/RatOS|/home/pi/printer_data/config/RavenOS|g' \
-        -e 's|~/printer_data/config/RatOS|~/printer_data/config/RavenOS|g' \
-        -e 's|printer_data/config/RatOS|printer_data/config/RavenOS|g' \
+        -e "s|/home/${BASE_USER}/printer_data/config/RatOS|/home/${BASE_USER}/printer_data/config/RatOS|g" \
+        -e 's|/home/pi/printer_data/config/RatOS|/home/pi/printer_data/config/RatOS|g' \
+        -e 's|~/printer_data/config/RatOS|~/printer_data/config/RatOS|g' \
+        -e 's|printer_data/config/RatOS|printer_data/config/RatOS|g' \
         "$f" 2>/dev/null || true
 done < <(find "${RATOS_CONFIGURATION_PATH}" -type f \( \
     -name '*.cfg' -o -name '*.json' -o -name '*.md' -o -name '*.yaml' -o -name '*.yml' \
@@ -47,15 +47,15 @@ done < <(find "${RATOS_CONFIGURATION_PATH}" -type f \( \
 chown -R "${BASE_USER}:${BASE_USER}" "${RATOS_CONFIGURATION_PATH}"
 
 # RatOS-configurator tRPC `version` runs `git describe --tags --always` with cwd
-# RATOS_CONFIGURATION_PATH. A plain copy of configuration/ has no .git → exec throws → HTTP 500.
+# RATOS_CONFIGURATION_PATH. A plain copy of configuration/ has no .git â†’ exec throws â†’ HTTP 500.
 sudo -u "${BASE_USER}" git -C "${RATOS_CONFIGURATION_PATH}" init
 sudo -u "${BASE_USER}" git -C "${RATOS_CONFIGURATION_PATH}" add -A
 sudo -u "${BASE_USER}" git -C "${RATOS_CONFIGURATION_PATH}" \
-    -c user.name="RavenOS" -c user.email="ravenos@local" \
-    commit -m "RavenOS PI5 configuration snapshot" \
+    -c user.name="RatOS" -c user.email="ratos@local" \
+    commit -m "RatOS PI5 configuration snapshot" \
     || echo "warn: could not commit RatOS config tree (empty?)"
 
-# Align upstream ratos-update.sh with Bookworm + RavenOS PI5 (Pi 5 image stack)
+# Align upstream ratos-update.sh with Bookworm + RatOS PI5 (Pi 5 image stack)
 RU="${RATOS_CONFIGURATION_PATH}/scripts/ratos-update.sh"
 if [[ -f "${RU}" ]]; then
     KLIB="/home/${BASE_USER}/klippy-env/lib"
@@ -66,8 +66,8 @@ if [[ -f "${RU}" ]]; then
             sed -i "s/python3\\.9/${PYDIR}/g" "${RU}" || true
         fi
     fi
-    # RavenOS PI5 ships Node 20 for RavenOS Configurator; do not downgrade to Node 18.
-    sed -i 's/^ensure_node_18$/# &  # RavenOS PI5: Node 20 image/' "${RU}" || true
+    # RatOS PI5 ships Node 20 for RatOS Configurator; do not downgrade to Node 18.
+    sed -i 's/^ensure_node_18$/# &  # RatOS PI5: Node 20 image/' "${RU}" || true
 fi
 
-echo_green "RavenOS printer config tree installed at ${RATOS_CONFIGURATION_PATH} (from RatOS-configurator configuration/)"
+echo_green "RatOS printer config tree installed at ${RATOS_CONFIGURATION_PATH} (from RatOS-configurator configuration/)"

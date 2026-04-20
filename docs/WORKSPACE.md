@@ -1,22 +1,22 @@
 # Workspace layout (R3DTech Configurator & builds)
 
-This file lives in the **RavenOS PI5** image repository. Use it when this repo sits inside a larger folder (for example **R3DTech Configurator**) next to other projects (`client/`, `server/`, etc.).
+This file lives in the **RatOS PI5** image repository. Use it when this repo sits inside a larger folder (for example **R3DTech Configurator**) next to other projects (`client/`, `server/`, etc.).
 
 ## CustomPiOS sibling
 
-CustomPiOS expects to live **next to** this repository so the Makefile’s default `CUSTOMPIOS_PATH=../CustomPiOS` resolves:
+CustomPiOS expects to live **next to** this repository so the Makefileâ€™s default `CUSTOMPIOS_PATH=../CustomPiOS` resolves:
 
 ```text
 <parent>/
-├── CustomPiOS/          ← git clone https://github.com/guysoft/CustomPiOS.git
-└── RAVENOS-PI5/          ← this repo (recommended directory name)
+â”œâ”€â”€ CustomPiOS/          â† git clone https://github.com/guysoft/CustomPiOS.git
+â””â”€â”€ RAVENOS-PI5/          â† this repo (recommended directory name)
 ```
 
 If your local checkout still uses the folder name **`KlipperPi`** (legacy), rename it to **`RAVENOS-PI5`** when nothing holds a lock, or use the **junction** below. CustomPiOS names the output **`<parent-of-src>.img`**, so the parent folder name should be **`RAVENOS-PI5`** if you want **`RAVENOS-PI5.img`**.
 
 ## Windows: directory junction (optional)
 
-If you cannot rename `KlipperPi` → `RAVENOS-PI5` (file locks), create a **junction** in the parent directory so build paths and output names match CI:
+If you cannot rename `KlipperPi` â†’ `RAVENOS-PI5` (file locks), create a **junction** in the parent directory so build paths and output names match CI:
 
 ```powershell
 # Run from the parent of this repo (e.g. R3DTech Configurator)
@@ -27,8 +27,8 @@ Then use `cd RAVENOS-PI5/src` for builds; it is the same working tree.
 
 ## Where to build
 
-- **Linux:** native, VM, or **WSL2** with Ubuntu — run `make build` or `sudo bash -x ./build_dist` from `src/` (see **README.md**).
-- **GitHub Actions:** push to `main` or run workflow **Build RavenOS PI5 Image** manually; artifacts use **`RavenOS-PI5-<version>-arm64`** (see **`.github/workflows/build.yml`**).
+- **Linux:** native, VM, or **WSL2** with Ubuntu â€” run `make build` or `sudo bash -x ./build_dist` from `src/` (see **README.md**).
+- **GitHub Actions:** push to `main` or run workflow **Build RatOS PI5 Image** manually; artifacts use **`RatOS-PI5-<version>-arm64`** (see **`.github/workflows/build.yml`**).
 
 ## Upstream repository URL
 
