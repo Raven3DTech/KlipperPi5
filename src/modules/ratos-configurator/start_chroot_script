@@ -35,6 +35,21 @@ if [[ -f "${LAYOUT}" ]]; then
     sudo -u pi sed -i "s/RatOS Configurator/RavenOS Configurator/g" "${LAYOUT}"
 fi
 
+# ── RavenOS favicon + top-bar logo (module filesystem → Next app/public) ─
+if [[ -f /filesystem/branding/favicon-32x32.png ]]; then
+    sudo -u pi cp /filesystem/branding/favicon-32x32.png "${RATOS_CONFIGURATOR_DIR}/src/app/icon.png"
+    sudo -u pi rm -f "${RATOS_CONFIGURATOR_DIR}/src/app/icon.svg"
+fi
+if [[ -f /filesystem/branding/ravenos-logo.png ]]; then
+    sudo -u pi cp /filesystem/branding/ravenos-logo.png "${RATOS_CONFIGURATOR_DIR}/src/public/ravenos-logo.png"
+    for f in topmenu.tsx template.tsx; do
+        APPF="${RATOS_CONFIGURATOR_DIR}/src/app/${f}"
+        if [[ -f "${APPF}" ]]; then
+            sudo -u pi sed -i "s|@/public/logo-white\\.svg|@/public/ravenos-logo.png|g" "${APPF}"
+        fi
+    done
+fi
+
 # ── Fix hardcoded paths that assume Raspberry Pi OS defaults ─
 # The configurator has bash scripts that hardcode /home/pi.
 # Since we use BASE_USER=pi this is fine, but we patch any
@@ -183,7 +198,7 @@ if mcu_ts.is_file():
 PATCHPY
 
 # Match project Prettier (heredoc fonts.tsx + patched routers can otherwise fail ESLint during `next build`).
-sudo -u pi bash -lc "cd ${RATOS_CONFIGURATOR_DIR}/src && pnpm exec prettier --write app/fonts.tsx server/routers/printer.ts server/routers/mcu.ts"
+sudo -u pi bash -lc "cd ${RATOS_CONFIGURATOR_DIR}/src && pnpm exec prettier --write app/fonts.tsx app/topmenu.tsx app/template.tsx server/routers/printer.ts server/routers/mcu.ts"
 
 # ── Build the Next.js production app ─────────────────────────
 # CI runners are memory-tight; cap Node heap explicitly to reduce OOM during Next build.
