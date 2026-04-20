@@ -1,6 +1,6 @@
 # RavenOS PI5
 
-**RavenOS PI5** is a **Raspberry Pi OS Lite arm64** image that ships the **RatOS v2.1.x–class** printer stack (Klipper, Moonraker, Mainsail, configurator, hotspot). It is **not** the upstream RatOS image. This repository’s **image build scripts and CustomPiOS modules** are **GPL-3.0** (see **LICENSE**). Bundled upstream projects keep their own licenses: [Klipper](https://github.com/Klipper3d/klipper), [Moonraker](https://github.com/Arksine/moonraker), [Mainsail](https://github.com/mainsail-crew/mainsail), and **[RatOS / RatOS-configurator](https://github.com/Rat-OS/RatOS-configurator)** (wizard UI and `configuration/` tree under `~/printer_data/config/RatOS`). **RatOS** and **RatRig** remain the upstream source of truth for printer configuration patterns; RavenOS exists to run that ecosystem on **official Raspberry Pi** hardware with Pi‑5 / Bookworm adjustments documented in **BUILD.md**.
+**RavenOS PI5** is a **Raspberry Pi OS Lite arm64** image that ships the **RatOS v2.1.x–class** printer stack (Klipper, Moonraker, Mainsail, configurator, hotspot). It is **not** the upstream RatOS image. This repository’s **image build scripts and CustomPiOS modules** are **GPL-3.0** (see **LICENSE**). Bundled upstream projects keep their own licenses: [Klipper](https://github.com/Klipper3d/klipper), [Moonraker](https://github.com/Arksine/moonraker), [Mainsail](https://github.com/mainsail-crew/mainsail), and **RatOS** lineage with the configurator maintained as **[RavenOS fork of RatOS-configurator](https://github.com/ECOM-EX/RatOS-configurator)** (wizard UI and `configuration/` tree under `~/printer_data/config/RavenOS`; upstream [Rat-OS/RatOS-configurator](https://github.com/Rat-OS/RatOS-configurator)). **RatOS** and **RatRig** remain the upstream source of truth for printer configuration patterns; RavenOS exists to run that ecosystem on **official Raspberry Pi** hardware with Pi‑5 / Bookworm adjustments documented in **BUILD.md**.
 
 Built with **CustomPiOS**.
 
@@ -8,7 +8,7 @@ Includes:
 - **Klipper** — 3D printer firmware
 - **Moonraker** — Klipper API server
 - **Mainsail** — Web UI for Klipper
-- **RavenOS Configurator** — board configuration, flashing and provisioning wizard (from upstream [RatOS-configurator](https://github.com/Rat-OS/RatOS-configurator))
+- **RavenOS Configurator** — board configuration, flashing and provisioning wizard (from **[our RatOS-configurator fork](https://github.com/ECOM-EX/RatOS-configurator)**; upstream [Rat-OS/RatOS-configurator](https://github.com/Rat-OS/RatOS-configurator))
 
 Targets **Raspberry Pi 5** running **Bookworm 64-bit**, but is compatible with Pi 4 as well.
 
@@ -147,8 +147,8 @@ Each component can be updated independently via Moonraker's update manager
 | Klipper | https://github.com/Klipper3d/klipper |
 | Moonraker | https://github.com/Arksine/moonraker |
 | Mainsail | https://github.com/mainsail-crew/mainsail |
-| Configurator | https://github.com/Rat-OS/RatOS-configurator |
-| ratos-configuration (module) | Fills `~/printer_data/config/RatOS` from [RatOS-configurator `configuration/`](https://github.com/Rat-OS/RatOS-configurator/tree/v2.1.x/configuration/) @ `v2.1.x` (legacy [RatOS-configuration](https://github.com/Rat-OS/RatOS-configuration) repo is upstream-deprecated) |
+| Configurator | https://github.com/ECOM-EX/RatOS-configurator (fork; upstream Rat-OS) |
+| ratos-configuration (module) | Fills `~/printer_data/config/RavenOS` from [fork `configuration/`](https://github.com/ECOM-EX/RatOS-configurator/tree/v2.1.x/configuration/) @ `v2.1.x` (legacy [RatOS-configuration](https://github.com/Rat-OS/RatOS-configuration) repo is upstream-deprecated) |
 | Crowsnest | https://github.com/mainsail-crew/crowsnest |
 | Sonar | https://github.com/mainsail-crew/sonar |
 | moonraker-timelapse | https://github.com/mainsail-crew/moonraker-timelapse |

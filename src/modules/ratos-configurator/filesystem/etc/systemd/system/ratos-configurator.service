@@ -1,6 +1,6 @@
 [Unit]
-Description=RavenOS Configurator (RatOS-configurator upstream)
-Documentation=https://github.com/Rat-OS/RatOS-configurator
+Description=RavenOS Configurator (ECOM-EX/RatOS-configurator fork)
+Documentation=https://github.com/ECOM-EX/RatOS-configurator
 After=network.target moonraker.service
 Wants=moonraker.service
 

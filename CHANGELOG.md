@@ -3,8 +3,9 @@
 ## Unreleased
 
 ### Changed
+- **Configurator fork:** image build clones and Moonraker’s `ratos-configurator` update-manager `origin` now use **[ECOM-EX/RatOS-configurator](https://github.com/ECOM-EX/RatOS-configurator)** (fork of [Rat-OS/RatOS-configurator](https://github.com/Rat-OS/RatOS-configurator), branch `v2.1.x`). Forking into **Raven3DTech** returned HTTP 403 for the account used with `gh`; transfer the repo under **Settings → General → Danger zone** if you want it under the org. Periodically merge or rebase **`upstream/v2.1.x`** into the fork to pick up Rat-OS fixes.
 - **Product / license:** rebrand to **RavenOS PI5**; default hostname, hotspot SSID, first-boot and helper units use **`ravenos`**. Image build tree is **GPL-3.0** (`LICENSE`). **Hotspot:** `ravenos-nm-wlan-ap-guard` now finds whichever interface is in **AP** mode (not hardcoded `wlan0`); **`autohotspotN`** picks the first `iw dev` interface if `wlan0` is missing; **`HOTSPOT_WIFI_IF`** + hostapd/dnsmasq use the same iface at image build time.
-- **RatOS printer config source:** `ratos-configuration` no longer clones [RatOS-configuration](https://github.com/Rat-OS/RatOS-configuration). It shallow-clones [RatOS-configurator](https://github.com/Rat-OS/RatOS-configurator) and copies **`configuration/`** → `~/printer_data/config/RatOS` so boards/templates match the [bundled configurator tree](https://github.com/Rat-OS/RatOS-configurator/tree/v2.1.x/configuration/). **Moonraker** drops `[update_manager ratos_configuration]`; see **BUILD.md** to rsync after updating the configurator repo.
+- **RatOS printer config source:** `ratos-configuration` no longer clones [RatOS-configuration](https://github.com/Rat-OS/RatOS-configuration). It shallow-clones the **[RavenOS fork of RatOS-configurator](https://github.com/ECOM-EX/RatOS-configurator)** and copies **`configuration/`** → `~/printer_data/config/RavenOS` so boards/templates match the [bundled configurator tree](https://github.com/ECOM-EX/RatOS-configurator/tree/v2.1.x/configuration/) (merge [Rat-OS/RatOS-configurator](https://github.com/Rat-OS/RatOS-configurator) periodically). **Moonraker** drops `[update_manager ratos_configuration]`; see **BUILD.md** to rsync after updating the configurator repo.
 - **SSH login shell:** add **`ensure-user-shell`** module after **`base`** to run **`usermod -s /bin/bash`** on **`BASE_USER`** in the chroot (Pi OS can ship **`pi`** with **`/usr/sbin/nologin`**, which yields **"This account is currently not available"** over SSH even with the correct password). **`ravenos-firstboot.sh`** does the same on first boot for edge cases.
 - **Klipper bring-up:** default **`printer.cfg`** defines **`[mcu]`** with **`serial: /tmp/klipper_host_mcu`** (matches **`klipper-mcu.service`**) and **`[printer]`** **`kinematics: none`** so Klipper is not halted on “**`serial` in section `mcu` must be specified**” before the Configurator runs (RatOS **`initial-setup.cfg`** cannot be included from here because **`ratos-configuration`** installs after **`klipper`**).
 - **Moonraker 0.10+:** **`moonraker.conf`** — replace deprecated **`env:`** with **`virtualenv:`** for Klipper/Moonraker; drop invalid **`install_script`** entries (**`ratos-configurator`’s `scripts/setup.sh` does not exist** on v2.1.x, which broke the update-manager extension and caused widespread “unparsed” warnings). Remove **`[panel_custom …]`** (no longer supported in server config the same way).
@@ -26,7 +27,7 @@
 - Klipper (Klipper3d/klipper @ master)
 - Moonraker (Arksine/moonraker @ master)
 - Mainsail (mainsail-crew/mainsail @ latest stable)
-- Configurator (Rat-OS/RatOS-configurator @ v2.1.x)
+- Configurator ([ECOM-EX/RatOS-configurator](https://github.com/ECOM-EX/RatOS-configurator) fork @ v2.1.x; track Rat-OS upstream)
 
 ### Base OS
 - Raspberry Pi OS Lite 64-bit (arm64; tracks current `raspios_lite_arm64_latest`, e.g. Bookworm or newer)

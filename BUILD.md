@@ -1,6 +1,6 @@
 # RavenOS PI5 — Build Guide
 
-**RavenOS PI5** is a **RatOS v2.1.x–class** printer stack (Moonraker, Mainsail, **RavenOS Configurator** from upstream RatOS-configurator, modular `~/printer_data/config/RatOS`, RatOS-derived hotspot) on **Raspberry Pi OS Lite arm64** for **Raspberry Pi 5** (Pi 4 compatible). It is **not** the upstream RatOS CB1 image; it tracks RatOS behaviour where Pi OS allows, with Pi‑5‑specific fixes called out below.
+**RavenOS PI5** is a **RatOS v2.1.x–class** printer stack (Moonraker, Mainsail, **RavenOS Configurator** from the **[ECOM-EX/RatOS-configurator](https://github.com/ECOM-EX/RatOS-configurator)** fork, modular `~/printer_data/config/RavenOS`, RatOS-derived hotspot) on **Raspberry Pi OS Lite arm64** for **Raspberry Pi 5** (Pi 4 compatible). It is **not** the upstream RatOS CB1 image; it tracks RatOS behaviour where Pi OS allows, with Pi‑5‑specific fixes called out below.
 
 This document covers the full build process, troubleshooting, and how to
 customise the image.
@@ -152,7 +152,7 @@ Match the [RatOS 2.1.x installation](https://os.ratrig.com/docs/installation/) f
 
 ## RatOS printer config tree (`~/printer_data/config/RatOS`)
 
-The image fills `~/printer_data/config/RatOS` from [RatOS-configurator **`configuration/`**](https://github.com/Rat-OS/RatOS-configurator/tree/v2.1.x/configuration/) on branch **`v2.1.x`** (same source the Configurator ships with). The older standalone [RatOS-configuration](https://github.com/Rat-OS/RatOS-configuration) repository is **deprecated** upstream (merged into the configurator; new work targets the configurator repo). That keeps board definitions and templates aligned with the wizard instead of lagging the split repo.
+The image fills `~/printer_data/config/RavenOS` from the **[RavenOS fork `configuration/`](https://github.com/ECOM-EX/RatOS-configurator/tree/v2.1.x/configuration/)** on branch **`v2.1.x`** (same tree the Configurator ships with; periodically merge [Rat-OS/RatOS-configurator](https://github.com/Rat-OS/RatOS-configurator)). The older standalone [RatOS-configuration](https://github.com/Rat-OS/RatOS-configuration) repository is **deprecated** upstream (merged into the configurator; new work targets the configurator repo). That keeps board definitions and templates aligned with the wizard instead of lagging the split repo.
 
 Note the following **compatibility** points versus a stock RatOS image:
 
