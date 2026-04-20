@@ -7,7 +7,7 @@ install_cleanup_trap
 
 echo_green "Building Klipper secondary MCU (klipper_mcu) ..."
 
-RPI_FW="/home/${BASE_USER}/printer_data/config/RatOS/boards/rpi/firmware.config"
+RPI_FW="/home/${BASE_USER}/printer_data/config/RavenOS/boards/rpi/firmware.config"
 if [[ -f "${RPI_FW}" ]]; then
     echo_green "Using RatOS-configuration RPi MCU Kconfig: ${RPI_FW}"
     sudo -u "${BASE_USER}" cp -f "${RPI_FW}" "/home/${BASE_USER}/klipper/.config"

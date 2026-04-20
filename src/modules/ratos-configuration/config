@@ -1,8 +1,8 @@
 #!/usr/bin/env bash
-# RatOS modular Klipper tree for ~/printer_data/config/RatOS — sourced from
+# RavenOS modular Klipper tree for ~/printer_data/config/RavenOS — sourced from
 # [RatOS-configurator `configuration/`](https://github.com/Rat-OS/RatOS-configurator/tree/v2.1.x/configuration/)
 # (the legacy [RatOS-configuration](https://github.com/Rat-OS/RatOS-configuration) repo is merged into the configurator).
 [ -n "$RATOS_CONFIGURATOR_REPO" ] || RATOS_CONFIGURATOR_REPO="https://github.com/Rat-OS/RatOS-configurator.git"
 [ -n "$RATOS_CONFIGURATOR_CONFIGURATION_BRANCH" ] || RATOS_CONFIGURATOR_CONFIGURATION_BRANCH="v2.1.x"
-[ -n "$RATOS_CONFIGURATION_PATH" ] || RATOS_CONFIGURATION_PATH="/home/${BASE_USER}/printer_data/config/RatOS"
+[ -n "$RATOS_CONFIGURATION_PATH" ] || RATOS_CONFIGURATION_PATH="/home/${BASE_USER}/printer_data/config/RavenOS"
 :

@@ -32,6 +32,18 @@ rm -rf "${RATOS_CONFIGURATION_PATH}"
 mkdir -p "${RATOS_CONFIGURATION_PATH}"
 cp -a "${TMP_CLONE}/ratos-configurator/configuration/." "${RATOS_CONFIGURATION_PATH}/"
 
+# Upstream templates sometimes embed the legacy folder name; normalize to RavenOS on disk.
+while IFS= read -r -d '' f; do
+    sed -i \
+        -e "s|/home/${BASE_USER}/printer_data/config/RatOS|/home/${BASE_USER}/printer_data/config/RavenOS|g" \
+        -e 's|/home/pi/printer_data/config/RatOS|/home/pi/printer_data/config/RavenOS|g' \
+        -e 's|~/printer_data/config/RatOS|~/printer_data/config/RavenOS|g' \
+        -e 's|printer_data/config/RatOS|printer_data/config/RavenOS|g' \
+        "$f" 2>/dev/null || true
+done < <(find "${RATOS_CONFIGURATION_PATH}" -type f \( \
+    -name '*.cfg' -o -name '*.json' -o -name '*.md' -o -name '*.yaml' -o -name '*.yml' \
+    -o -name '*.sh' -o -name '*.txt' \) -print0)
+
 chown -R "${BASE_USER}:${BASE_USER}" "${RATOS_CONFIGURATION_PATH}"
 
 # RatOS-configurator tRPC `version` runs `git describe --tags --always` with cwd
@@ -58,4 +70,4 @@ if [[ -f "${RU}" ]]; then
     sed -i 's/^ensure_node_18$/# &  # RavenOS PI5: Node 20 image/' "${RU}" || true
 fi
 
-echo_green "RatOS printer config tree installed at ${RATOS_CONFIGURATION_PATH} (from RatOS-configurator configuration/)"
+echo_green "RavenOS printer config tree installed at ${RATOS_CONFIGURATION_PATH} (from RatOS-configurator configuration/)"

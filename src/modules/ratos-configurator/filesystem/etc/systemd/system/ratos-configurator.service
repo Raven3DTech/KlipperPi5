@@ -10,14 +10,14 @@ User=pi
 WorkingDirectory=/home/pi/ratos-configurator/src
 EnvironmentFile=/home/pi/ratos-configurator/src/.env.local
 # Ensure server-side paths are always present for Node/Next workers (mirrors .env.local).
-Environment=RATOS_CONFIGURATION_PATH=/home/pi/printer_data/config/RatOS
+Environment=RATOS_CONFIGURATION_PATH=/home/pi/printer_data/config/RavenOS
 Environment=KLIPPER_CONFIG_PATH=/home/pi/printer_data/config
 Environment=KLIPPER_DIR=/home/pi/klipper
 Environment=KLIPPER_ENV=/home/pi/klippy-env
 Environment=MOONRAKER_DIR=/home/pi/moonraker
 Environment=RATOS_SCRIPT_DIR=/home/pi/ratos-configurator/src/scripts
-Environment=LOG_FILE=/home/pi/printer_data/logs/ratos-configurator.log
-Environment=RATOS_DATA_DIR=/home/pi/printer_data/ratos
+Environment=LOG_FILE=/home/pi/printer_data/logs/ravenos-configurator.log
+Environment=RATOS_DATA_DIR=/home/pi/printer_data/ravenos
 Environment=NODE_ENV=production
 Environment=USER=pi
 ExecStart=/usr/bin/node /home/pi/ratos-configurator/src/node_modules/next/dist/bin/next start --port 3000 --hostname 0.0.0.0

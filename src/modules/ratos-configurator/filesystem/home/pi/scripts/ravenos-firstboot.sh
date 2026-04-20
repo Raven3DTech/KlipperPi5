@@ -115,7 +115,7 @@ systemctl restart ssh 2>/dev/null || systemctl start ssh 2>/dev/null || true
 
 # ── Set correct ownership on printer_data ────────────────────
 echo "[5/7] Setting file ownership..."
-mkdir -p /home/pi/printer_data/ratos /home/pi/printer_data/logs /home/pi/timelapse
+mkdir -p /home/pi/printer_data/ravenos /home/pi/printer_data/logs /home/pi/timelapse
 touch /home/pi/printer_data/logs/sonar.log
 chown -R pi:pi /home/pi/printer_data
 chown -R pi:pi /home/pi/timelapse
